@@ -4,15 +4,10 @@ import random
 # https://cardscans.piwigo.com/index?/category/706-g
 # https://nicubunu.ro/graphics:playingcards
 
-class GameServer:
-    def __init__(self):
-        self.games = []
 
-    def add_game(self, game):
-        self.games.append(game)
 
 class Game:
-    def __init__(self, players, game_id):
+    def __init__(self, game_id, players):
         self.id = game_id
         self.players = players
         self.current = players[0]
