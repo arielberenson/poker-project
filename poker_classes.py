@@ -6,13 +6,17 @@ import socket
 import time
 import json
 
+from extra_functions import *
+from bet import place_bet, fold
+from compute_winner import compute_winner
+
 
 # https://cardscans.piwigo.com/index?/category/706-g
 # https://nicubunu.ro/graphics:playingcards
 
 
 class Game:
-    def __init__(self, game_id, players):
+    def __init__(self, game_id, players, message_queue):
         self.id = game_id
         self.players = players
         self.current = players[0]
@@ -21,31 +25,17 @@ class Game:
         self.turn_counter = 0
         self.max_turns = len(self.players)
         self.deck = Deck()
-        self.community_cards = Communal()
-        self.message_queue = queue.Queue()
+        self.community_cards = Communal(self.deck)
+        self.message_queue = message_queue
+        self.game_queue = queue.Queue()
         self.pot = Pot()
 
-    def send_to_all(self, recipients, m):
-        for recipient in recipients:
-            try:
-                us = recipient.get_user()
-                us.get_socket().sendall(m.encode('utf-8'))
-            except Exception as e:
-                recipient.get_socket().sendall(m.encode('utf-8'))
-
-    def create_message(self, message_type, data1, data2):
-        return json.dumps({
-            "type": message_type,
-            "data1": data1,
-            "data2": data2,
-        })
-
     def new_round(self):
-        pot.clear_pot()
-        deck.create_deck()
-        deck.shuffle()
-        community.clear(deck)
-        for player in players.get_players():
+        self.pot.clear_pot()
+        self.deck.create_deck()
+        self.deck.shuffle()
+        self.community_cards.clear(self.deck)
+        for player in self.get_players():
             player.clear()
 
     def start_game(self):
@@ -53,72 +43,72 @@ class Game:
         process_data_thread.start()
         self.new_round()
         print("game start")
-        for player in players.get_players():
+        for player in self.get_players():
             user = player.get_user()
             message = create_message('new-round', '', '')
             user.get_socket().sendall(message.encode('utf-8'))
-            player.get_hand(deck)
+            player.get_hand(self.deck)
             # Convert each card to a dictionary
             cards_dict = [card.to_dict() for card in player.get_cards()]
             message = create_message('player-cards', cards_dict, player.get_chips())
             user.get_socket().sendall(message.encode('utf-8'))
 
         players_data = []
-        for player in players.get_players():
+        for player in self.get_players():
             data = (player.get_username(), player.get_chips())
             players_data.append(data)
         message = create_message('players', players_data, '')
-        send_to_all(players.get_players(), message)
+        send_to_all(self.players, message)
         print(players_data)
 
         round = 0
         while round < 4:
-            if len(players.get_players()) == 1:
+            if len(self.players) == 1:
                 break
             round += 1
             print(round)
-            players.new_round()
-            print("Turn count: ", players.get_turn_counter())
-            print("Max Turns: ", players.get_max_turns())
+            self.new_round()
+            print("Turn count: ", self.get_turn_counter())
+            print("Max Turns: ", self.get_max_turns())
             message = create_message('round_bet', 0, '')
-            send_to_all(players.get_players(), message)
+            send_to_all(self.players, message)
             if round == 2:
                 print("round 2 entered")
-                community.flop()
-                cards_dict = [card.to_dict() for card in community.get_cards()]
+                self.community_cards.flop()
+                cards_dict = [card.to_dict() for card in self.community_cards.get_cards()]
                 message = create_message('round', round, cards_dict)
                 print(message)
-                send_to_all(players.get_players(), message)
+                send_to_all(self.players, message)
             elif round > 2:
-                community.turn()
-                c = [community.get_cards()[round]]
+                self.community_cards.turn()
+                c = [self.community_cards.get_cards()[round]]
                 cards_dict = [card.to_dict() for card in c]
                 message = create_message('round', round, cards_dict)
-                send_to_all(players.get_players(), message)
-            while players.get_turn_counter() < players.get_max_turns():
-                print(players.get_current().get_username())
+                send_to_all(self.players, message)
+            while self.get_turn_counter() < self.get_max_turns():
+                print(self.get_current().get_username())
                 try:
-                    if players.get_last_bet() > 0:
+                    if self.get_last_bet() > 0:
                         pressure = 'pressure'
                     else:
                         pressure = 'no pressure'
-                    user = players.get_current().get_user()
+                    user = self.get_current().get_user()
                     # Notify the current player whose turn it is
-                    message = create_message('turn', players.get_current().get_username(), pressure)
-                    send_to_all(players.get_players(), message)
+                    message = create_message('turn', self.get_current().get_username(), pressure)
+                    send_to_all(self.players, message)
                 except Exception as e:
                     print(f"Error with client {user.get_address()}: {e}")
                     return None
-                player_moved = game_queue.get()
+                player_moved = self.game_queue.get()
                 if player_moved:
-                    send_to_all(players.get_players(),
-                                create_message('player-moved', players.get_current().get_username(),
-                                               (player_moved[0], player_moved[0])))
+                    message = create_message('player-moved', self.get_current().get_username(), player_moved)
+                    send_to_all(self.players, message)
 
         print("game over")
-        winner = compute_winner(players, community)
+        winner = compute_winner(self.players, self.community_cards)
         print(winner[0].get_username())
-        winner[0].add_chips(pot.get_chips())
+        winner[0].add_chips(self.pot.get_chips())
+
     def process_data(self):
         print('process started')
         while True:
@@ -135,66 +125,35 @@ class Game:
                 data1 = message_data.get("data1")
                 data2 = message_data.get("data2")
 
-                if message_type == 'create':
-                    for user in self.users.get_users():
-                        print('username: ', user.get_username())
-                        if user.get_username() == data1:
-                            self.create_game(user)
-                            message = self.create_message('approve', 'create', '')
-                            user.get_socket().sendall(message.encode('utf-8'))
-                            message = self.create_message('new_game', user.get_username(), '')
-                            self.send_to_all(self.users.get_users(), message)
-
-                if message_type == 'join':
-                    for user in self.users.get_users():
-                        if user.get_username() == data1:
-                            message = self.create_message('player-joined', 'lobby', data1)
-                            self.send_to_all(current_game.get_players(), message)
-                            p = Player(user, user.get_username(), 1000)
-                            current_game.add_players(p)
-                            names = []
-                            for p in current_game.get_players():
-                                names.append(p.get_username())
-                            message = self.create_message('approve', 'join', names)
-                            user.get_socket().sendall(message.encode('utf-8'))
-
                 if message_type == 'game-start':
                     game_start = True
-                    message = self.create_message('approve', 'game-start', '')
-                    self.send_to_all(current_game.get_players(), message)
+                    message = create_message('approve', 'game-start', '')
+                    send_to_all(current_game.get_players(), message)
                     self.game_queue.put(current_game)
-
-                if message_type == 'name':
-                    for u in self.users.get_users():
-                        print("real", u.get_address())
-                        print("sent", data2)
-                        if u.get_address() == tuple(data2):
-                            u.set_username(data1)
-                            print('for ', data2, ' accepted ', data1)
 
                 if message_type == 'player_move':
                     if data1 == 'call':
                         print("players last bet: ", current_game.get_last_bet())
-                        place_bet(current_game, pot, current_game.get_last_bet())
-                        message = self.create_message('player chips', current_game.get_current().get_name(),
+                        place_bet(current_game, self.pot, current_game.get_last_bet())
+                        message = create_message('player chips', current_game.get_current().get_name(),
                                                       current_game.get_current().get_chips())
-                        self.send_to_all(current_game.get_players(), message)
-                        message = self.create_message('pot', pot.get_chips(), '')
-                        self.send_to_all(current_game.get_players(), message)
+                        send_to_all(current_game.get_players(), message)
+                        message = create_message('pot', self.pot.get_chips(), '')
+                        send_to_all(current_game.get_players(), message)
                     elif data1 == 'raise':
-                        place_bet(current_game, pot, data2)
-                        message = self.create_message('player chips', current_game.get_current().get_name(),
+                        place_bet(current_game, self.pot, data2)
+                        message = create_message('player chips', current_game.get_current().get_name(),
                                                       current_game.get_current().get_chips())
-                        self.send_to_all(current_game.get_players(), message)
-                        message = self.create_message('pot', pot.get_chips(), '')
-                        self.send_to_all(current_game.get_players(), message)
+                        send_to_all(current_game.get_players(), message)
+                        message = create_message('pot', self.pot.get_chips(), '')
+                        send_to_all(current_game.get_players(), message)
                         current_game.player_raised()
                     elif data1 == 'fold':
                         fold(current_game)
                     current_game.next_player()
                     print("Turn count: ", current_game.get_turn_counter())
                     print("Max Turns: ", current_game.get_max_turns())
-                    game_queue.put((data1, data2))
+                    self.game_queue.put((data1, data2))
 
             except queue.Empty:
                 pass  # No message to process, simply skip

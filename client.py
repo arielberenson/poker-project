@@ -4,7 +4,6 @@ import time
 import socket
 import json
 from queue import Queue
-from main import *
 from poker_classes import Card
 from pygame_classes import *
 import select
@@ -88,7 +87,7 @@ class Game:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('10.116.4.173', 8820))
+        self.my_socket.connect(('127.0.0.1', 8820))
 
         name = input("Enter your name: ")
         message = create_message('name', name, self.my_socket.getsockname())
@@ -112,6 +111,7 @@ class Game:
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.create_button.check_click(event.pos):
                             message = create_message('create', self.name, '')
+                            print(message)
                             self.my_socket.sendall(message.encode('utf-8'))
                         for button in self.join_button_list.get_games():
                             if button.check_click(event.pos):

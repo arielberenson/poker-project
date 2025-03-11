@@ -272,24 +272,5 @@ def run_game(players):
 
 
 if __name__ == "__main__":
-    message_queue = queue.Queue()
-    game_queue = queue.Queue()
-    admin, server_socket = start_server()
-    users = Users([admin])
-    connect_user_thread = threading.Thread(target=add_user, args=(server_socket,), daemon=True)
-    connect_user_thread.start()
-    data_thread = threading.Thread(target=recv_data, daemon=True)
-    data_thread.start()
-    process_data_thread = threading.Thread(target=process_data, daemon=True)
-    process_data_thread.start()
-    players = game_queue.get()
-    if players:
-        small = 5
-        big = 10
-        pot = Pot()
-        deck = Deck()
-        deck.shuffle()
-        community = Communal(deck)
-        run_game(players)
-    data_thread.join()
-    process_data_thread.join()
+    game_server = GameServer()
+

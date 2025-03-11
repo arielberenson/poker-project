@@ -13,12 +13,16 @@ class GameServer:
         self.games = {}
         self.game_counter = 1  # To auto-increment the game ID
         self.message_queue = queue.Queue()
+        print("before")
         self.admin, self.server_socket = self.start_server()
+        print("after")
         self.users = Users([self.admin])
+
         connect_user_thread = threading.Thread(target=self.add_user, args=(self.server_socket,), daemon=True)
         connect_user_thread.start()
-        data_thread = threading.Thread(target=self.recv_data, daemon=True)
-        data_thread.start()
+        self.recv_data()
+        # data_thread = threading.Thread(target=self.recv_data, daemon=True)
+        # data_thread.start()
 
 
     def extract_json(self, data):
@@ -37,13 +41,12 @@ class GameServer:
                     return data[i + 1:], data[start_idx:i + 1]  # Return the remaining data and the JSON object
         return data, ""  # If no complete JSON is found, return the data unprocessed
 
-
-
     def create_game(self, user):
         p = Player(user, user.get_username(), 1000)
         game_id = f"game_{self.game_counter}"  # Generate game ID like 'game_1', 'game_2', etc.
-        new_game = Game(game_id, p)
-        self.games[game_id] = new_game
+        message_queue = queue.Queue()
+        new_game = Game(game_id, [p], message_queue)
+        self.games[game_id] = new_game, message_queue
         self.game_counter += 1  # Increment the counter for the next game
         print(f"Game {game_id} created.")
         new_game_thread = threading.Thread(target=self.run_game, args=(game_id,), daemon=True)
@@ -52,16 +55,14 @@ class GameServer:
     def run_game(self, game_id):
         self.games[game_id].start_game()
 
-
     def start_server(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(('0.0.0.0', 8820))  # Bind to all interfaces on port 8820
-        server_socket.listen(1)  # Listen for exactly 1 clients (max 1 clients in the queue)
+        server_socket.bind(('127.0.0.1' , 8820))
+        server_socket.listen(1)
         print("Server is listening for connections...")
-
-        # Accept first client connection
         client_socket, client_address = server_socket.accept()
-        print(f"Accepted connection from client 1 at {client_address}")
+        print(f"Connection established with {client_address}")
+
         user = User(client_socket, client_address)
         return user, server_socket
 
@@ -86,15 +87,47 @@ class GameServer:
                     message = user.get_socket().recv(1024).decode('utf-8')
                     if message:
                         print(message)
-                        for game in self.games:
-                            for player in game.get_players():
-                                if player.get_username() == user.get_username():
-                                    current_game = game.get_game_id()
-                                    break
-                        self.message_queue.put(message, current_game)
+                        message_data = json.loads(message)
+                        message_type = message_data.get("type")
+                        print("JSON message: ", message_data)
+                        data1 = message_data.get("data1")
+                        data2 = message_data.get("data2")
+
+                        if message_type == 'name':
+                            for u in self.users.get_users():
+                                print("real", u.get_address())
+                                print("sent", data2)
+                                if u.get_address() == tuple(data2):
+                                    u.set_username(data1)
+                                    print('for ', data2, ' accepted ', data1)
+
+                        elif message_type == 'create':
+                            for user in self.users.get_users():
+                                print('username: ', user.get_username())
+                                if user.get_username() == data1:
+                                    self.create_game(user)
+                                    message = create_message('approve', 'create', '')
+                                    user.get_socket().sendall(message.encode('utf-8'))
+                                    message = create_message('new_game', user.get_username(), '')
+                                    send_to_all(self.users.get_users(), message)
+
+                        elif message_type == 'join':
+                            for user in self.users.get_users():
+                                if user.get_username() == data1:
+                                    message = create_message('player-joined', 'lobby', data1)
+                                    send_to_all(current_game.get_players(), message)
+                                    p = Player(user, user.get_username(), 1000)
+                                    current_game.add_players(p)
+                                    names = []
+                                    for p in current_game.get_players():
+                                        names.append(p.get_username())
+                                    message = create_message('approve', 'join', names)
+                                    user.get_socket().sendall(message.encode('utf-8'))
+                        else:
+                            for game in self.games:
+                                for player in game[0].get_players():
+                                    if player.get_username() == user.get_username():
+                                        current_game = game
+                                        break
+                            current_game[1].put(message)
                 time.sleep(0.1)
-
-
-
-
-
