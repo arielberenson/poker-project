@@ -2,6 +2,8 @@ import queue
 import threading
 import select
 import socket
+
+from firebase import add_to_db, check_username
 from poker_classes import *
 import time
 import json
@@ -53,7 +55,7 @@ class GameServer:
         new_game_thread.start()
 
     def run_game(self, game_id):
-        self.games[game_id].start_game()
+        self.games[game_id][0].start_game()
 
     def start_server(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,15 +95,7 @@ class GameServer:
                         data1 = message_data.get("data1")
                         data2 = message_data.get("data2")
 
-                        if message_type == 'name':
-                            for u in self.users.get_users():
-                                print("real", u.get_address())
-                                print("sent", data2)
-                                if u.get_address() == tuple(data2):
-                                    u.set_username(data1)
-                                    print('for ', data2, ' accepted ', data1)
-
-                        elif message_type == 'create':
+                        if message_type == 'create':
                             for user in self.users.get_users():
                                 print('username: ', user.get_username())
                                 if user.get_username() == data1:
@@ -123,11 +117,25 @@ class GameServer:
                                         names.append(p.get_username())
                                     message = create_message('approve', 'join', names)
                                     user.get_socket().sendall(message.encode('utf-8'))
+                        elif message_type == 'sign_up':
+                            for user in self.users.get_users():
+                                print("real", user.get_address())
+                                print("sent", data2)
+                                if user.get_address() == tuple(data2):
+                                    if check_username(data1[0]):
+                                        add_to_db(data1)
+                                        user.create_account(data1[0], data1[1])
+                                        print('for ', data2, ' accepted ', data1[0])
+                                        message = create_message('approve', 'user', data1[0])
+                                    else:
+                                        message = create_message('reject', 'user', '')
+                                    user.get_socket().sendall(message.encode('utf-8'))
                         else:
-                            for game in self.games:
+                            print(self.games)
+                            for game in self.games.values():
+                                print(game)
                                 for player in game[0].get_players():
                                     if player.get_username() == user.get_username():
                                         current_game = game
                                         break
                             current_game[1].put(message)
-                time.sleep(0.1)

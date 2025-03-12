@@ -21,6 +21,9 @@ def create_message(message_type, data1, data2):
 class Game:
     def __init__(self):
         # Initialize key game variables
+        self.submit_sign_up_button = None
+        self.sign_up_username = None
+        self.sign_up_password = None
         self.name = None
         self.whose_turn = None
         self.screen = None
@@ -51,6 +54,8 @@ class Game:
         self.create_button = None
         self.start_button = None
         self.players_lobby_display = None
+        self.log_in_button = None
+        self.sign_up_button = None
 
     def init_pygame(self):
         pygame.init()
@@ -64,6 +69,9 @@ class Game:
 
         # Create buttons and displays
         self.join_button_list = GamesDisplay()
+        self.submit_sign_up_button = Button(200, 100, "Submit", self.SW * 0.4, self.SH * 0.8)
+        self.sign_up_username = TextInput(self.SW * 0.4, self.SH * 0.2, 200, 100)
+        self.sign_up_password = TextInput(self.SW * 0.4, self.SH * 0.4, 200, 100)
         self.create_button = Button(200, 200, "Create", self.SW * 0.60, self.SH * 0.3)
         self.check_call_button = Button(100, 50, "Check", self.SW * 0.35, self.SH * 0.875)
         self.raise_button = Button(100, 50, "Raise", self.SW * 0.45, self.SH * 0.875)
@@ -73,6 +81,9 @@ class Game:
         self.confirm_button = Button(50, 50, "X", self.SW * 0.75, self.SH * 0.875, )
         self.start_button = Button(200, 100, "Start Game", self.SW * 0.45, self.SH * 0.75)
         self.players_lobby_display = PlayersLobbyDisplay()
+
+        self.log_in_button = Button(300, 300, "Log in", self.SW * 0.6, self.SH * 0.3)
+        self.sign_up_button = Button(300, 300, "Sign Up", self.SW * 0.3, self.SH * 0.3)
 
         self.players_display = PlayersDisplay()
         self.pot_display.update_text("Pot: " + str(self.pot))
@@ -89,21 +100,44 @@ class Game:
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.connect(('127.0.0.1', 8820))
 
-        name = input("Enter your name: ")
-        message = create_message('name', name, self.my_socket.getsockname())
-        self.my_socket.sendall(message.encode('utf-8'))
-        print(message)
-        self.name = name
-
     def run_pygame(self, message_queue):
         game_host = False
-        page = 'main'
+        page = 'start'
         print("GAME STARTED")
         buttons_hide = True
         raise_buttons_hide = True
         pressure = False
         while self.running:
             self.screen.fill((53, 101, 77))
+            if page == 'start':
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.log_in_button.check_click(event.pos):
+                            page = 'log in'
+                        if self.sign_up_button.check_click(event.pos):
+                            page = 'sign up'
+                self.sign_up_button.draw(self.screen)
+                self.log_in_button.draw(self.screen)
+            if page == 'sign up':
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.submit_sign_up_button.check_click(event.pos):
+                            if self.sign_up_username.get_text() and self.sign_up_password.get_text():
+                                username = self.sign_up_username.get_text()
+                                password = self.sign_up_password.get_text()
+                                message = create_message('sign_up', (username, password), self.my_socket.getsockname())
+                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.sign_up_password.set_text('')
+                                self.sign_up_username.set_text('')
+                    self.sign_up_password.handle_event(event)
+                    self.sign_up_username.handle_event(event)
+                self.submit_sign_up_button.draw(self.screen)
+                self.sign_up_password.draw(self.screen)
+                self.sign_up_username.draw(self.screen)
             if page == 'main':
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -296,6 +330,10 @@ class Game:
 
                     if data1 == 'game-start':
                         page = 'game'
+
+                    if data1 =='user':
+                        page = 'main'
+                        self.name = data2
 
                 elif message_type == 'new_game':
                     self.join_button_list.add_game(data1)

@@ -1,5 +1,7 @@
 import json
 import threading
+
+from firebase import initialize_firebase
 from poker_classes import *
 from bet import *
 from compute_winner import *
@@ -272,5 +274,5 @@ def run_game(players):
 
 
 if __name__ == "__main__":
+    initialize_firebase()
     game_server = GameServer()
-

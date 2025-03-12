@@ -206,8 +206,9 @@ class Game:
 
 
 class User:
-    def __init__(self, client_socket, client_address, username=None):
+    def __init__(self, client_socket, client_address, username=None, password=None):
         self.username = username
+        self.password = password
         self.socket = client_socket
         self.address = client_address
 
@@ -220,8 +221,9 @@ class User:
     def get_username(self):
         return self.username
 
-    def set_username(self, username):
+    def create_account(self, username, password):
         self.username = username
+        self.password = password
 
 
 class Users:

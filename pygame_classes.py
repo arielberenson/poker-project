@@ -103,7 +103,7 @@ class TextInput:
         text_surface = font.render(self.text, True, self.text_color)
         screen.blit(text_surface, (self.x + 10, self.y + 5))
 
-    def handle_event(self, event):
+    def handle_event(self, event, only_digit=False):
         """Handle user input events"""
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Check if the input field was clicked
@@ -111,14 +111,20 @@ class TextInput:
                 self.active = True  # Focus the input field
             else:
                 self.active = False  # Lose focus if clicked outside
+
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                # Remove the last character on backspace
-                self.text = self.text[:-1]
-            elif len(self.text) < self.max_characters and event.key in range(pygame.K_0, pygame.K_9 + 1):
-                self.text += event.unicode
-            if not self.text.isdigit():
-                self.text = self.text[:-1]
+            if self.active:
+                if event.key == pygame.K_BACKSPACE:
+                    # Remove the last character on backspace
+                    self.text = self.text[:-1]
+                elif len(self.text) < self.max_characters:
+                    if only_digit:
+                        # Only allow digits (0-9)
+                        if event.key in range(pygame.K_0, pygame.K_9 + 1):
+                            self.text += event.unicode
+                    else:
+                        # Allow all characters
+                        self.text += event.unicode
 
     def get_text(self):
         """Get the current text"""
