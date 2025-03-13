@@ -10,6 +10,8 @@ import select
 import queue
 
 
+
+
 def create_message(message_type, data1, data2):
     return json.dumps({
         "type": message_type,
