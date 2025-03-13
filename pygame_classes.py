@@ -388,9 +388,9 @@ class GamesDisplay:
     def __init__(self):
         self.games = []
 
-    def add_game(self, name):
+    def add_game(self, name, game_id):
         display = Button(SW * 0.1, SH * 0.1, name + "'s Game")
-        self.games.append([display, name])
+        self.games.append([display, game_id])
 
     def draw(self, screen):
         i = 1

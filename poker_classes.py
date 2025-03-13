@@ -38,9 +38,11 @@ class Game:
         for player in self.get_players():
             player.clear()
 
-    def start_game(self):
+    def create_game(self):
         process_data_thread = threading.Thread(target=self.process_data, daemon=True)
         process_data_thread.start()
+
+    def start_game(self):
         self.new_round()
         print("game start")
         for player in self.get_players():
@@ -126,12 +128,13 @@ class Game:
                 data2 = message_data.get("data2")
 
                 if message_type == 'game-start':
-                    game_start = True
+                    new_game_thread = threading.Thread(target=self.run_game, args=(self.start_game,), daemon=True)
+                    new_game_thread.start()
                     message = create_message('approve', 'game-start', '')
                     send_to_all(current_game.get_players(), message)
                     self.game_queue.put(current_game)
 
-                if message_type == 'player_move':
+                elif message_type == 'player_move':
                     if data1 == 'call':
                         print("players last bet: ", current_game.get_last_bet())
                         place_bet(current_game, self.pot, current_game.get_last_bet())

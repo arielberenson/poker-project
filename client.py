@@ -10,8 +10,6 @@ import select
 import queue
 
 
-
-
 def create_message(message_type, data1, data2):
     return json.dumps({
         "type": message_type,
@@ -100,7 +98,7 @@ class Game:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('127.0.0.1', 8820))
+        self.my_socket.connect(('10.116.4.173', 8820))
 
     def run_pygame(self, message_queue):
         game_host = False
@@ -149,9 +147,9 @@ class Game:
                             message = create_message('create', self.name, '')
                             print(message)
                             self.my_socket.sendall(message.encode('utf-8'))
-                        for button in self.join_button_list.get_games():
-                            if button.check_click(event.pos):
-                                message = create_message('join', button[1], self.name)
+                        for game in self.join_button_list.get_games():
+                            if game[0].check_click(event.pos):
+                                message = create_message('join', game[1], self.name)
                                 self.my_socket.sendall(message.encode('utf-8'))
                 self.join_button_list.draw(self.screen)
                 self.create_button.draw(self.screen)
@@ -333,12 +331,12 @@ class Game:
                     if data1 == 'game-start':
                         page = 'game'
 
-                    if data1 =='user':
+                    if data1 == 'user':
                         page = 'main'
                         self.name = data2
 
                 elif message_type == 'new_game':
-                    self.join_button_list.add_game(data1)
+                    self.join_button_list.add_game(data1, data2)
 
                 elif message_type == 'player-joined':
                     if data1 == 'lobby':

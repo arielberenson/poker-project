@@ -51,15 +51,15 @@ class GameServer:
         self.games[game_id] = new_game, message_queue
         self.game_counter += 1  # Increment the counter for the next game
         print(f"Game {game_id} created.")
-        new_game_thread = threading.Thread(target=self.run_game, args=(game_id,), daemon=True)
-        new_game_thread.start()
+        new_game.create_game()
+        return game_id
 
     def run_game(self, game_id):
         self.games[game_id][0].start_game()
 
     def start_server(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(('127.0.0.1' , 8820))
+        server_socket.bind(('0.0.0.0' , 8820))
         server_socket.listen(1)
         print("Server is listening for connections...")
         client_socket, client_address = server_socket.accept()
@@ -94,46 +94,44 @@ class GameServer:
                         print("JSON message: ", message_data)
                         data1 = message_data.get("data1")
                         data2 = message_data.get("data2")
-
-                        if message_type == 'create':
-                            for user in self.users.get_users():
-                                print('username: ', user.get_username())
-                                if user.get_username() == data1:
-                                    self.create_game(user)
-                                    message = create_message('approve', 'create', '')
-                                    user.get_socket().sendall(message.encode('utf-8'))
-                                    message = create_message('new_game', user.get_username(), '')
-                                    send_to_all(self.users.get_users(), message)
-
-                        elif message_type == 'join':
-                            for user in self.users.get_users():
-                                if user.get_username() == data1:
-                                    message = create_message('player-joined', 'lobby', data1)
-                                    send_to_all(current_game.get_players(), message)
-                                    p = Player(user, user.get_username(), 1000)
-                                    current_game.add_players(p)
-                                    names = []
-                                    for p in current_game.get_players():
-                                        names.append(p.get_username())
-                                    message = create_message('approve', 'join', names)
-                                    user.get_socket().sendall(message.encode('utf-8'))
+                        if message_type == 'join':
+                            for game in self.games():
+                                if game == data1:
+                                    current_game = game.value()
+                                    break
+                            message = create_message('player-joined', 'lobby', data1)
+                            send_to_all(current_game.get_players(), message)
+                            p = Player(user, user.get_username(), 1000)
+                            current_game.add_players(p)
+                            names = []
+                            for p in current_game.get_players():
+                                names.append(p.get_username())
+                            message = create_message('approve', 'join', names)
+                            user.get_socket().sendall(message.encode('utf-8'))
+                        elif message_type == 'create':
+                            print('username: ', user.get_username())
+                            game_id = self.create_game(user)
+                            message = create_message('approve', 'create', '')
+                            user.get_socket().sendall(message.encode('utf-8'))
+                            message = create_message('new_game', user.get_username(), game_id)
+                            send_to_all(self.users.get_users(), message)
                         elif message_type == 'sign_up':
-                            for user in self.users.get_users():
-                                print("real", user.get_address())
-                                print("sent", data2)
-                                if user.get_address() == tuple(data2):
-                                    if check_username(data1[0]):
-                                        add_to_db(data1)
-                                        user.create_account(data1[0], data1[1])
-                                        print('for ', data2, ' accepted ', data1[0])
-                                        message = create_message('approve', 'user', data1[0])
-                                    else:
-                                        message = create_message('reject', 'user', '')
-                                    user.get_socket().sendall(message.encode('utf-8'))
+                            print("real", user.get_address())
+                            print("sent", data2)
+                            if user.get_address() == tuple(data2):
+                                if check_username(data1[0]):
+                                    add_to_db(data1)
+                                    user.create_account(data1[0], data1[1])
+                                    print('for ', data2, ' accepted ', data1[0])
+                                    message = create_message('approve', 'user', data1[0])
+                                else:
+                                    message = create_message('reject', 'user', '')
+                                user.get_socket().sendall(message.encode('utf-8'))
                         else:
                             print(self.games)
                             for game in self.games.values():
                                 print(game)
+                                print(game[0].get_players())
                                 for player in game[0].get_players():
                                     if player.get_username() == user.get_username():
                                         current_game = game
