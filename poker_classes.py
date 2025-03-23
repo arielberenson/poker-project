@@ -7,7 +7,6 @@ import time
 import json
 
 from extra_functions import *
-from bet import place_bet, fold
 from compute_winner import compute_winner
 
 
@@ -25,6 +24,7 @@ class Game:
         self.turn_counter = 0
         self.max_turns = len(self.players)
         self.deck = Deck()
+        self.deck.shuffle()
         self.community_cards = Communal(self.deck)
         self.message_queue = message_queue
         self.game_queue = queue.Queue()
@@ -89,22 +89,22 @@ class Game:
                 message = create_message('round', round, cards_dict)
                 send_to_all(self.players, message)
             while self.get_turn_counter() < self.get_max_turns():
-                print(self.get_current().get_username())
+                print(self.current.get_username())
                 try:
                     if self.get_last_bet() > 0:
                         pressure = 'pressure'
                     else:
                         pressure = 'no pressure'
-                    user = self.get_current().get_user()
+                    user = self.current.get_user()
                     # Notify the current player whose turn it is
-                    message = create_message('turn', self.get_current().get_username(), pressure)
+                    message = create_message('turn', self.current.get_username(), pressure)
                     send_to_all(self.players, message)
                 except Exception as e:
                     print(f"Error with client {user.get_address()}: {e}")
                     return None
                 player_moved = self.game_queue.get()
                 if player_moved:
-                    message = create_message('player-moved', self.get_current().get_username(), player_moved)
+                    message = create_message('player-moved', self.current.get_username(), player_moved)
                     send_to_all(self.players, message)
 
         print("game over")
@@ -135,26 +135,26 @@ class Game:
 
                 elif message_type == 'player_move':
                     if data1 == 'call':
-                        print("players last bet: ", self.get_last_bet())
-                        place_bet(self.players, self.pot, self.last_bet)
-                        message = create_message('player chips', self.get_current().get_name(),
-                                                      self.get_current().get_chips())
+                        print("players last bet: ", self.last_bet)
+                        self.place_bet(self.last_bet)
+                        message = create_message('player chips', self.current.get_name(),
+                                                 self.current.get_chips())
                         send_to_all(self.players, message)
                         message = create_message('pot', self.pot.get_chips(), '')
                         send_to_all(self.players, message)
                     elif data1 == 'raise':
-                        place_bet(self.players, self.pot, data2)
-                        message = create_message('player chips', self.get_current().get_name(),
-                                                      self.get_current().get_chips())
+                        self.place_bet(data2)
+                        message = create_message('player chips', self.current.get_name(),
+                                                 self.current.get_chips())
                         send_to_all(self.players, message)
                         message = create_message('pot', self.pot.get_chips(), '')
                         send_to_all(self.players, message)
                         self.player_raised()
                     elif data1 == 'fold':
-                        fold(self.players)
-                    self.players.next_player()
-                    print("Turn count: ", self.players.get_turn_counter())
-                    print("Max Turns: ", self.players.get_max_turns())
+                        self.remove_first_player()
+                    self.next_player()
+                    print("Turn count: ", self.get_turn_counter())
+                    print("Max Turns: ", self.get_max_turns())
                     self.game_queue.put((data1, data2))
 
             except queue.Empty:
@@ -170,6 +170,12 @@ class Game:
         self.players.append(self.players.pop(0))  # Move the first player to the end of the list
         self.current = self.players[0]
         self.turn_counter += 1
+
+    def place_bet(self, n):
+        self.current.remove_chips(n - self.current.get_round_bet())
+        self.pot.add_chips(n)
+        if self.last_bet < n:
+            self.last_bet = n
 
     def new_round(self):
         while self.players[0] != self.big:
@@ -205,7 +211,6 @@ class Game:
 
     def add_players(self, p):
         self.players.append(p)
-
 
 
 class User:
