@@ -17,12 +17,26 @@ def initialize_firebase():
     return users_ref
 
 
-def check_username(item):
+def check_username(username):
     users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
 
     # Query the users to check if the username exists
-    existing_users = users_ref.order_by_child('username').equal_to(item).get()
+    existing_users = users_ref.order_by_child('username').equal_to(username).get()
     return bool(not existing_users)  # Returns True if the username exists, else False
+
+
+def check_user_credentials(user_credentials):
+    username, password = user_credentials
+    users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
+
+    # Query the database for the given username
+    matching_users = users_ref.order_by_child('username').equal_to(username).get()
+
+    for user_data in matching_users.values():
+        if user_data.get('password') == password:
+            return True  # Found a matching username and password
+
+    return False  # No matching user found
 
 
 def add_to_db(item):

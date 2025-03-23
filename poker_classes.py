@@ -28,6 +28,8 @@ class Game:
         self.community_cards = Communal(self.deck)
         self.message_queue = message_queue
         self.game_queue = queue.Queue()
+        self.process_data_thread = threading.Thread(target=self.process_data, daemon=True)
+        self.run_game_thread = threading.Thread(target=self.start_game, daemon=True)
         self.pot = Pot()
 
     def new_round(self):
@@ -39,8 +41,7 @@ class Game:
             player.clear()
 
     def create_game(self):
-        process_data_thread = threading.Thread(target=self.process_data, daemon=True)
-        process_data_thread.start()
+        self.process_data_thread.start()
 
     def start_game(self):
         self.new_round()
@@ -115,9 +116,9 @@ class Game:
         print('process started')
         while True:
             try:
-                incoming_message, current_game = self.message_queue.get_nowait()  # Non-blocking get from the queue
+                incoming_message = self.message_queue.get_nowait()  # Non-blocking get from the queue
                 print("RAW message: ", incoming_message)
-                extra, incoming_message = self.extract_json(incoming_message)
+                extra, incoming_message = extract_json(incoming_message)
                 print("extra", extra)
                 if extra:
                     self.message_queue.put(extra)
@@ -128,34 +129,32 @@ class Game:
                 data2 = message_data.get("data2")
 
                 if message_type == 'game-start':
-                    new_game_thread = threading.Thread(target=self.run_game, args=(self.start_game,), daemon=True)
-                    new_game_thread.start()
                     message = create_message('approve', 'game-start', '')
-                    send_to_all(current_game.get_players(), message)
-                    self.game_queue.put(current_game)
+                    send_to_all(self.players, message)
+                    self.run_game_thread.start()
 
                 elif message_type == 'player_move':
                     if data1 == 'call':
-                        print("players last bet: ", current_game.get_last_bet())
-                        place_bet(current_game, self.pot, current_game.get_last_bet())
-                        message = create_message('player chips', current_game.get_current().get_name(),
-                                                      current_game.get_current().get_chips())
-                        send_to_all(current_game.get_players(), message)
+                        print("players last bet: ", self.get_last_bet())
+                        place_bet(self.players, self.pot, self.last_bet)
+                        message = create_message('player chips', self.get_current().get_name(),
+                                                      self.get_current().get_chips())
+                        send_to_all(self.players, message)
                         message = create_message('pot', self.pot.get_chips(), '')
-                        send_to_all(current_game.get_players(), message)
+                        send_to_all(self.players, message)
                     elif data1 == 'raise':
-                        place_bet(current_game, self.pot, data2)
-                        message = create_message('player chips', current_game.get_current().get_name(),
-                                                      current_game.get_current().get_chips())
-                        send_to_all(current_game.get_players(), message)
+                        place_bet(self.players, self.pot, data2)
+                        message = create_message('player chips', self.get_current().get_name(),
+                                                      self.get_current().get_chips())
+                        send_to_all(self.players, message)
                         message = create_message('pot', self.pot.get_chips(), '')
-                        send_to_all(current_game.get_players(), message)
-                        current_game.player_raised()
+                        send_to_all(self.players, message)
+                        self.player_raised()
                     elif data1 == 'fold':
-                        fold(current_game)
-                    current_game.next_player()
-                    print("Turn count: ", current_game.get_turn_counter())
-                    print("Max Turns: ", current_game.get_max_turns())
+                        fold(self.players)
+                    self.players.next_player()
+                    print("Turn count: ", self.players.get_turn_counter())
+                    print("Max Turns: ", self.players.get_max_turns())
                     self.game_queue.put((data1, data2))
 
             except queue.Empty:
@@ -206,6 +205,7 @@ class Game:
 
     def add_players(self, p):
         self.players.append(p)
+
 
 
 class User:

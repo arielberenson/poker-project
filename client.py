@@ -98,7 +98,7 @@ class Game:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('10.116.4.173', 8820))
+        self.my_socket.connect(('127.0.0.1', 8820))
 
     def run_pygame(self, message_queue):
         game_host = False
@@ -130,6 +130,24 @@ class Game:
                                 username = self.sign_up_username.get_text()
                                 password = self.sign_up_password.get_text()
                                 message = create_message('sign_up', (username, password), self.my_socket.getsockname())
+                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.sign_up_password.set_text('')
+                                self.sign_up_username.set_text('')
+                    self.sign_up_password.handle_event(event)
+                    self.sign_up_username.handle_event(event)
+                self.submit_sign_up_button.draw(self.screen)
+                self.sign_up_password.draw(self.screen)
+                self.sign_up_username.draw(self.screen)
+            if page == 'log in':
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.submit_sign_up_button.check_click(event.pos):
+                            if self.sign_up_username.get_text() and self.sign_up_password.get_text():
+                                username = self.sign_up_username.get_text()
+                                password = self.sign_up_password.get_text()
+                                message = create_message('log_in', (username, password), self.my_socket.getsockname())
                                 self.my_socket.sendall(message.encode('utf-8'))
                                 self.sign_up_password.set_text('')
                                 self.sign_up_username.set_text('')
@@ -332,6 +350,10 @@ class Game:
                         page = 'game'
 
                     if data1 == 'user':
+                        page = 'main'
+                        self.name = data2
+
+                    if data1 == 'log in':
                         page = 'main'
                         self.name = data2
 

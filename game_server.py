@@ -3,7 +3,7 @@ import threading
 import select
 import socket
 
-from firebase import add_to_db, check_username
+from firebase import add_to_db, check_username, check_user_credentials
 from poker_classes import *
 import time
 import json
@@ -25,23 +25,6 @@ class GameServer:
         self.recv_data()
         # data_thread = threading.Thread(target=self.recv_data, daemon=True)
         # data_thread.start()
-
-
-    def extract_json(self, data):
-        """Extract a complete JSON object from the data, handling nested structures."""
-        # Use a stack to track the opening and closing braces
-        stack = 0
-        start_idx = 0
-        for i, char in enumerate(data):
-            if char == '{':  # Opening brace
-                if stack == 0:
-                    start_idx = i
-                stack += 1
-            elif char == '}':  # Closing brace
-                stack -= 1
-                if stack == 0:  # Found a complete JSON object
-                    return data[i + 1:], data[start_idx:i + 1]  # Return the remaining data and the JSON object
-        return data, ""  # If no complete JSON is found, return the data unprocessed
 
     def create_game(self, user):
         p = Player(user, user.get_username(), 1000)
@@ -95,9 +78,9 @@ class GameServer:
                         data1 = message_data.get("data1")
                         data2 = message_data.get("data2")
                         if message_type == 'join':
-                            for game in self.games():
-                                if game == data1:
-                                    current_game = game.value()
+                            for game_id, game_data in self.games.items():
+                                if game_id == data1:
+                                    current_game = game_data[0]
                                     break
                             message = create_message('player-joined', 'lobby', data1)
                             send_to_all(current_game.get_players(), message)
@@ -126,6 +109,14 @@ class GameServer:
                                     message = create_message('approve', 'user', data1[0])
                                 else:
                                     message = create_message('reject', 'user', '')
+                                user.get_socket().sendall(message.encode('utf-8'))
+                        elif message_type == 'log_in':
+                            if user.get_address() == tuple(data2):
+                                if check_user_credentials(data1):
+                                    user.create_account(data1[0], data1[1])
+                                    message = create_message('approve', 'log in', data1[0])
+                                else:
+                                    message = create_message('reject', 'log in', data1[0])
                                 user.get_socket().sendall(message.encode('utf-8'))
                         else:
                             print(self.games)
