@@ -395,28 +395,11 @@ class GamesDisplay:
     def draw(self, screen):
         i = 1
         for game in self.games:
-            game[0].draw(screen, int(SW * 0.2), int(SH * 0.1 * i))
+            game[0].draw(screen, int(SW * 0.2), int(SH * 0.13 * i))
             i += 1
 
     def get_games(self):
         return self.games
-
-
-'''
-class PlayerLobbyDisplay:
-    def __init__(self, name, padding=5):
-        self.text = name
-        self.padding = padding
-        self.text_surface = font.render(self.text, True, (255, 255, 255))
-        self.width = 500
-        self.height = self.text_surface.get_height() + self.padding*2
-        self.surface = pygame.Surface((self.width, self.height))
-        self.text_rect = self.text_surface.get_rect(topleft=(self.padding, self.padding))
-        self.text_surface.blit(self.text_surface, self.text_rect)
-
-    def draw(self, screen):
-        screen.blit(self.surface)
-'''
 
 
 class PlayersLobbyDisplay:
@@ -427,6 +410,9 @@ class PlayersLobbyDisplay:
         display = TextDisplay(int(SW * 0.3), int(SH * 0.1))
         display.update_text(p)
         self.players.append(display)
+
+    def count(self):
+        return len(self.players)
 
     def draw(self, screen):
         i = 1

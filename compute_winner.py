@@ -140,7 +140,7 @@ def compute_winner(players, community):
     compare = []
     names = []
     # Get the hand from each player
-    for p in players.get_players():
+    for p in players:
         hands.append(compute_hand(p.get_cards(), community.get_cards()))
         names.append(p.get_name())
     hands_sorted = sorted(hands, reverse=True, key=lambda x: x[0])
@@ -176,6 +176,6 @@ def compute_winner(players, community):
     winners = []
     for winning_hand in compare:
         index = hands.index(winning_hand)
-        winner = players.get_players()[index]
+        winner = players[index]
         winners.append(winner)
     return winners

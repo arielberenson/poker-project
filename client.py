@@ -42,6 +42,7 @@ class Game:
         self.players_display = None
         self.confirm_button = None
         self.me_display = None
+        self.play_again_button = None
         self.my_socket = None
         self.update_queue = Queue()
         self.cards = []
@@ -56,6 +57,7 @@ class Game:
         self.players_lobby_display = None
         self.log_in_button = None
         self.sign_up_button = None
+        self.game_over = False
 
     def init_pygame(self):
         pygame.init()
@@ -69,6 +71,7 @@ class Game:
 
         # Create buttons and displays
         self.join_button_list = GamesDisplay()
+        self.play_again_button = Button(400, 400, "Play Again?", self.SW * 0.3, self.SH * 0.3)
         self.submit_sign_up_button = Button(200, 100, "Submit", self.SW * 0.4, self.SH * 0.8)
         self.sign_up_username = TextInput(self.SW * 0.4, self.SH * 0.2, 200, 100)
         self.sign_up_password = TextInput(self.SW * 0.4, self.SH * 0.4, 200, 100)
@@ -178,10 +181,10 @@ class Game:
                         self.running = False
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.start_button.check_click(event.pos):
-                            message = create_message('game-start', '', '')
+                            message = create_message('start_game', '', '')
                             self.my_socket.sendall(message.encode('utf-8'))
                 self.players_lobby_display.draw(self.screen)
-                if game_host:
+                if game_host and self.players_lobby_display.count() > 1:
                     self.start_button.draw(self.screen)
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'game':
@@ -229,6 +232,9 @@ class Game:
                             self.my_socket.sendall(message.encode('utf-8'))
                             buttons_hide = True
                             raise_buttons_hide = True
+                        elif self.play_again_button.check_click(event.pos):
+                            message = create_message('play_again', '', '')
+                            self.my_socket.sendall(message.encode('utf-8'))
                     self.input_field.handle_event(event)
                 mouse_pos = pygame.mouse.get_pos()
                 self.check_call_button.check_hover(mouse_pos)
@@ -258,6 +264,9 @@ class Game:
                 if self.cards:
                     self.me_display.draw(self.screen)
                 self.pot_display.update_text("Pot: " + str(self.pot))
+
+                if self.game_over and game_host:
+                    self.play_again_button.draw(self.screen)
 
             try:
                 message = message_queue.get_nowait()  # Non-blocking get from the queue
@@ -309,7 +318,10 @@ class Game:
                         index = next(index for index, player in enumerate(players_data) if player[0] == data1) - 1
                         self.players_display.get_player(index).update_chips(data2)
 
-                elif message_type == 'player-moved':
+                elif message_type == 'game_over':
+                    self.game_over = True
+
+                elif message_type == 'player_moved':
                     if data1 and data2:
                         move, val = data2
                         if val:
@@ -326,7 +338,7 @@ class Game:
                         self.players_data += players_data[0:self_index]
                         self.players_display.add_players(self.players_data[1:])
 
-                elif message_type == 'player-cards':
+                elif message_type == 'player_cards':
                     print("accsesd")
                     cards_data = message_data['data1']
                     self.chips = message_data['data2']
@@ -346,8 +358,9 @@ class Game:
                             self.players_lobby_display.add_players(name)
                         page = 'lobby'
 
-                    if data1 == 'game-start':
+                    if data1 == 'start_game':
                         page = 'game'
+                        self.new_game()
 
                     if data1 == 'user':
                         page = 'main'
@@ -360,19 +373,12 @@ class Game:
                 elif message_type == 'new_game':
                     self.join_button_list.add_game(data1, data2)
 
-                elif message_type == 'player-joined':
+                elif message_type == 'player_joined':
                     if data1 == 'lobby':
                         self.players_lobby_display.add_players(data2)
 
-                elif message_type == 'new-round':
-                    self.cards = None
-                    self.players_data = None
-                    self.players_display.reset()
-                    self.community_card_1.reset()
-                    self.community_card_2.reset()
-                    self.community_card_3.reset()
-                    self.community_card_4.reset()
-                    self.community_card_5.reset()
+                elif message_type == 'play_again':
+                    self.new_game()
 
             except queue.Empty:
                 pass  # No message to process, simply skip
@@ -409,6 +415,18 @@ class Game:
                 if stack == 0:  # Found a complete JSON object
                     return data[i + 1:], data[start_idx:i + 1]  # Return the remaining data and the JSON object
         return data, ""  # If no complete JSON is found, return the data unprocessed
+
+    def new_game(self):
+        self.cards = None
+        self.players_data = None
+        self.players_display.reset()
+        self.community_card_1.reset()
+        self.community_card_2.reset()
+        self.community_card_3.reset()
+        self.community_card_4.reset()
+        self.community_card_5.reset()
+        self.game_over = False
+        self.pot = 0
 
 
 # Create the game object
