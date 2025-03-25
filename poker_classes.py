@@ -6,14 +6,18 @@ import random
 
 
 class User:
-    def __init__(self, client_socket, client_address, username=None, password=None):
+    def __init__(self, client_socket, client_address, username=None, password=None, chips=None):
         self.username = username
         self.password = password
         self.socket = client_socket
         self.address = client_address
+        self.chips = chips
 
     def get_socket(self):
         return self.socket
+
+    def get_chips(self):
+        return self.chips
 
     def get_address(self):
         return self.address
@@ -21,9 +25,10 @@ class User:
     def get_username(self):
         return self.username
 
-    def create_account(self, username, password):
+    def create_account(self, username, password, chips):
         self.username = username
         self.password = password
+        self.chips = chips
 
 
 class Users:

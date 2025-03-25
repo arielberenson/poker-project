@@ -7,6 +7,7 @@ import json
 
 from extra_functions import *
 from compute_winner import compute_winner
+from firebase import update_chips
 from poker_classes import *
 
 
@@ -129,6 +130,9 @@ class Game:
                 winner[0].add_chips(self.pot.get_chips())
                 message = create_message('game_over', '', '')
                 send_to_all(self.players, message)
+                for player in self.players:
+                    print("before update chips")
+                    update_chips(player.get_username(), player.get_chips())
                 self.game_queue.put('waiting')
 
     def process_data(self):

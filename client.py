@@ -58,6 +58,8 @@ class Game:
         self.log_in_button = None
         self.sign_up_button = None
         self.game_over = False
+        self.chips_display = None
+        self.welcome_display = None
 
     def init_pygame(self):
         pygame.init()
@@ -71,6 +73,8 @@ class Game:
 
         # Create buttons and displays
         self.join_button_list = GamesDisplay()
+        self.chips_display = ChipsDisplay("1000")
+        self.welcome_display = TextDisplay(self.SW*0.1, self.SW*0.1, 36, (0,0,0), "Hi, ")
         self.play_again_button = Button(400, 400, "Play Again?", self.SW * 0.3, self.SH * 0.3)
         self.submit_sign_up_button = Button(200, 100, "Submit", self.SW * 0.4, self.SH * 0.8)
         self.sign_up_username = TextInput(self.SW * 0.4, self.SH * 0.2, 200, 100)
@@ -174,6 +178,10 @@ class Game:
                                 self.my_socket.sendall(message.encode('utf-8'))
                 self.join_button_list.draw(self.screen)
                 self.create_button.draw(self.screen)
+                self.chips_display.draw(self.screen, self.SW*0.1, self.SH*0.1)
+                self.welcome_display.draw(self.screen, self.SW * 0.3, self.SH * 0.1)
+                self.welcome_display.update_text("Hi, " + self.name)
+                self.chips_display.update_chips(self.chips)
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'lobby':
                 for event in pygame.event.get():
@@ -364,11 +372,13 @@ class Game:
 
                     if data1 == 'user':
                         page = 'main'
-                        self.name = data2
+                        self.name = data2[0]
+                        self.chips = data2[1]
 
                     if data1 == 'log in':
                         page = 'main'
-                        self.name = data2
+                        self.name = data2[0]
+                        self.chips = data2[1]
 
                 elif message_type == 'new_game':
                     self.join_button_list.add_game(data1, data2)
