@@ -31,28 +31,15 @@ class User:
         self.chips = chips
 
 
-class Users:
-    def __init__(self, users):
-        self.users = users
-
-    def add_user(self, user):
-        self.users.append(user)
-
-    def find_user(self, username):
-        user = next((u for u in self.users if u.get_username() == username), None)
-        return user
-
-    def get_users(self):
-        return self.users
-
-
 class Player:
-    def __init__(self, user, username, chips):
+    def __init__(self, user, username, chips, spectating=False):
         self.user = user
         self.cards = []
         self.username = username
         self.chips = chips
         self.round_bet = 0
+        self.active = False
+        self.spectating = spectating
 
     def remove_chips(self, n):
         self.chips -= int(n)
@@ -61,9 +48,16 @@ class Player:
     def add_chips(self, n):
         self.chips += n
 
+    def is_active(self):
+        return self.active
+
+    def set_active(self, b):
+        self.active = b
+
     def new_game(self):
         self.round_bet = 0
         self.cards = []
+        self.active = True
 
     def new_round(self):
         self.round_bet = 0

@@ -1,6 +1,9 @@
 import pygame
 
 pygame.init()
+screen_info = pygame.display.Info()
+sw = screen_info.current_w  # Width of the screen
+sh = screen_info.current_h  # Height of the screen
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -10,12 +13,14 @@ BUTTON_HOVER = (200, 200, 200)
 BUTTON_CLICKED = (100, 100, 100)
 BUTTON_DISABLED = (100, 100, 100)  # Color for disabled button
 
-screen_info = pygame.display.Info()
-SW = screen_info.current_w  # Width of the screen
-SH = screen_info.current_h  # Height of the screen
-
 # Fonts
 font = pygame.font.Font(None, 36)
+
+
+def get_screen_info():
+    global sw
+    global sh
+    return sw, sh
 
 
 class Button:
@@ -147,9 +152,9 @@ class CardImg:
         self.img = 'backs/back04.svg'
 
     def draw(self, screen):
-        card = pygame.image.load(self.img)
-        # transform_card = pygame.transform.scale(card, (100, 139))
-        screen.blit(card, (self.x, self.y))
+        image = pygame.image.load(self.img)
+        # scaled_image = pygame.transform.scale(image, (sw*, sh*))
+        screen.blit(image, (self.x, self.y))
 
 
 class TextDisplay:
@@ -369,13 +374,22 @@ class PlayersDisplay:
         for players in data:
             self.players.append(PlayerDisplay(players[0], str(players[1])))
 
+    def clear(self):
+        self.players = []
+
+    def remove_player(self, name):
+        for player in self.players:
+            if player[1] == name:  # Assuming player[1] is the name
+                self.players.remove(player)
+                break  # Stop once the player is found and removed
+
     def draw(self, screen):
         if len(self.players) == 1:
             for element in self.players:
-                element.draw(screen, SW * 0.45, SH * 0.05)
+                element.draw(screen, sw * 0.45, sh * 0.05)
         elif len(self.players) == 2:
-            self.players[0].draw(screen, SW * 0.2, SH * 0.05)
-            self.players[1].draw(screen, SW * 0.6, SH * 0.05)
+            self.players[0].draw(screen, sw * 0.2, sh * 0.05)
+            self.players[1].draw(screen, sw * 0.6, sh * 0.05)
 
     def get_player(self, i):
         return self.players[i]
@@ -389,13 +403,18 @@ class GamesDisplay:
         self.games = []
 
     def add_game(self, name, game_id):
-        display = Button(SW * 0.1, SH * 0.1, name + "'s Game")
+        display = Button(sw * 0.1, sh * 0.1, name + "'s Game")
         self.games.append([display, game_id])
+
+    def remove(self, game_id):
+        for game in self.games:
+            if game[1] == game_id:
+                self.games.remove(game)
 
     def draw(self, screen):
         i = 1
         for game in self.games:
-            game[0].draw(screen, int(SW * 0.2), int(SH * 0.13 * i))
+            game[0].draw(screen, int(sw * 0.2), int(sh * 0.13 * i))
             i += 1
 
     def get_games(self):
@@ -407,15 +426,26 @@ class PlayersLobbyDisplay:
         self.players = []
 
     def add_players(self, p):
-        display = TextDisplay(int(SW * 0.3), int(SH * 0.1))
+        display = TextDisplay(int(sw * 0.3), int(sh * 0.1))
         display.update_text(p)
-        self.players.append(display)
+        self.players.append([display, p])
+
+    def clear(self):
+        self.players = []
 
     def count(self):
         return len(self.players)
 
+    def remove_player(self, name):
+        for player in self.players:
+            if player[1] == name:  # Assuming player[1] is the name
+                self.players.remove(player)
+                break  # Stop once the player is found and removed
+
     def draw(self, screen):
         i = 1
         for player in self.players:
-            player.draw(screen, int(SW * 0.2), int(SH * 0.1 * i))
+            player[0].draw(screen, int(sw * 0.2), int(sh * 0.1 * i))
             i += 1
+
+
