@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.2.5" pages="3">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.4" pages="3">
   <diagram name="Page-1" id="loPU3zmZzHOAl2yBzBA7">
     <mxGraphModel dx="2088" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" adaptiveColors="simple">
       <root>
@@ -437,36 +437,65 @@
     </mxGraphModel>
   </diagram>
   <diagram id="fWWd-IGaokTDZ0jOi2e6" name="Page-2">
-    <mxGraphModel dx="788" dy="425" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1212" dy="654" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-1" target="AxxpQYqutu6Z9lSdm2nC-2">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-1" target="AxxpQYqutu6Z9lSdm2nC-2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-1" value="שרת" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-1" value="שרת" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="320" y="40" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-2" target="AxxpQYqutu6Z9lSdm2nC-4">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-2" target="AxxpQYqutu6Z9lSdm2nC-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-2" value="התחברות" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-2" value="התחברות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="320" y="180" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-6">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-6" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-8">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-8" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-4" value="המתנה ללקוח ראשון" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="M4k14wv83IE-usvoSfUF-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="M4k14wv83IE-usvoSfUF-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-4" value="המתנה ללקוח ראשון" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="320" y="290" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-6" value="הקשבה להתחברויות נוספות" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-6" value="הקשבה להתחברויות נוספות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="220" y="420" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-8" value="הקשבה להודעות" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="M4k14wv83IE-usvoSfUF-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-8" target="M4k14wv83IE-usvoSfUF-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AxxpQYqutu6Z9lSdm2nC-8" value="הקשבה להודעות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="400" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="M4k14wv83IE-usvoSfUF-2" target="M4k14wv83IE-usvoSfUF-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="570" />
+              <mxPoint x="580" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-2" value="קבלת הודעה ופעילות&lt;div&gt;לפי סוגה&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="M4k14wv83IE-usvoSfUF-4" target="M4k14wv83IE-usvoSfUF-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-4" value="האם ההודעה בקשה&amp;nbsp;&lt;div&gt;למשחק חדש?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="505" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-6" value="פתיחת משחק חדש&lt;div&gt;ואיחסון משחק&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="M4k14wv83IE-usvoSfUF-8" value="לכל משחק: ריצת משחק" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="420" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
