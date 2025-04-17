@@ -518,26 +518,52 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="6i4vmjrFjCILCtRcfg_w-1" target="ldNUheckNPO1Yu-tTwlE-1">
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="6i4vmjrFjCILCtRcfg_w-1" target="ldNUheckNPO1Yu-tTwlE-1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="6i4vmjrFjCILCtRcfg_w-1" value="לקוח" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="6i4vmjrFjCILCtRcfg_w-1" value="לקוח" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="330" y="60" width="120" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ldNUheckNPO1Yu-tTwlE-1" target="ldNUheckNPO1Yu-tTwlE-3">
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="ldNUheckNPO1Yu-tTwlE-1" target="ldNUheckNPO1Yu-tTwlE-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ldNUheckNPO1Yu-tTwlE-1" target="ldNUheckNPO1Yu-tTwlE-4">
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="ldNUheckNPO1Yu-tTwlE-1" target="ldNUheckNPO1Yu-tTwlE-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-1" value="התחברות לשרת" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-1" value="התחברות לשרת" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="330" y="190" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-3" value="הצגת משך" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ldNUheckNPO1Yu-tTwlE-3" target="SOEZg-yQ0W8wTrqBVcQ9-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-3" value="הצגת משך" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="230" y="300" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ldNUheckNPO1Yu-tTwlE-4" value="הקשבה להודעות מן&amp;nbsp;&lt;div&gt;השרת&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ldNUheckNPO1Yu-tTwlE-4" target="SOEZg-yQ0W8wTrqBVcQ9-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ldNUheckNPO1Yu-tTwlE-4" value="הקשבה להודעות מן&amp;nbsp;&lt;div&gt;השרת&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="425" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-2" value="איחסון הודעות" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="425" y="420" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="SOEZg-yQ0W8wTrqBVcQ9-4" target="ldNUheckNPO1Yu-tTwlE-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-7" value="לא" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="SOEZg-yQ0W8wTrqBVcQ9-6">
+          <mxGeometry x="0.0296" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="SOEZg-yQ0W8wTrqBVcQ9-4" target="SOEZg-yQ0W8wTrqBVcQ9-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-4" value="יש הודעות באיחסון?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="410" width="110" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="SOEZg-yQ0W8wTrqBVcQ9-10" value="פעילות לפי הודעה" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="510" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
