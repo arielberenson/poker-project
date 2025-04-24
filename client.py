@@ -1,6 +1,5 @@
 import threading
 import socket
-import json
 from poker_classes import Card
 from pygame_classes import *
 from extra_functions import *
@@ -246,7 +245,7 @@ class Client:
             try:
                 message = message_queue.get_nowait()  # Non-blocking get from the queue
                 print("RAW message: ", message)
-                extra, message = self.extract_json(message)
+                extra, message = extract_json(message)
                 print("extra", extra)
                 if extra:
                     message_queue.put(extra)
