@@ -1,17 +1,15 @@
 import queue
 import threading
-import select
-import socket
-import time
-import json
 
 from extra_functions import *
 from compute_winner import compute_winner
+from firebase import update_chips
 from poker_classes import *
 
 
 class Game:
-    def __init__(self, game_id, players, message_queue):
+    def __init__(self, game_id, players, server_to_game_queue, game_to_server_queue):
+        self.pending_players = []
         self.id = game_id
         self.players = players
         self.current = players[0]
@@ -22,16 +20,24 @@ class Game:
         self.deck = Deck()
         self.deck.shuffle()
         self.community_cards = Communal(self.deck)
-        self.message_queue = message_queue
+        self.server_to_game_queue = server_to_game_queue
+        self.game_to_server_queue = game_to_server_queue
         self.game_queue = queue.Queue()
         self.process_data_thread = threading.Thread(target=self.process_data, daemon=True)
         self.run_game_thread = threading.Thread(target=self.start_game, daemon=True)
         self.pot = Pot()
+        self.game_started = False
+        self.terminate = False
+
+    def is_game_started(self):
+        return self.game_started
 
     def play_again(self):
         print("PLAY AGAIN")
-        while self.players[0] != self.big:
-            self.players.append(self.players.pop(0))
+        if self.pending_players:
+            for player in self.pending_players:
+                self.players.append(player)
+            self.pending_players = []
         self.current = self.players[0]
         self.pot.clear_pot()
         self.deck.new_deck()
@@ -43,6 +49,16 @@ class Game:
         self.max_turns = len(self.players)
         self.last_bet = 0
 
+    def everyone_folded(self):
+        count = 0
+        for player in self.players:
+            if player.is_active():
+                count += 1
+        if count <= 1:
+            return True
+        else:
+            return False
+
     def new_round(self):
         for player in self.players:
             player.new_round()
@@ -51,14 +67,14 @@ class Game:
         self.max_turns = len(self.players)
         self.current = self.players[0]
 
-
     def create_game(self):
         self.process_data_thread.start()
 
     def start_game(self):
-        while True:
+        while True and not self.terminate:
+            print('gaming')
             play_again = self.game_queue.get()
-            if play_again == 'play_again':
+            if play_again == 'play_again' and not self.terminate:
                 self.play_again()
                 print("game start")
                 for player in self.get_players():
@@ -78,11 +94,10 @@ class Game:
                 message = create_message('players', players_data, '')
                 send_to_all(self.players, message)
                 print(players_data)
+                still_playing = True
 
                 round = 0
-                while round < 4:
-                    if len(self.players) == 1:
-                        break
+                while round < 4 and still_playing and not self.terminate:
                     round += 1
                     print(round)
                     self.new_round()
@@ -98,13 +113,12 @@ class Game:
                         print(message)
                         send_to_all(self.players, message)
                     elif round > 2:
-                        s = self.community_cards
                         self.community_cards.turn()
                         c = [self.community_cards.get_cards()[round]]
                         cards_dict = [card.to_dict() for card in c]
                         message = create_message('round', round, cards_dict)
                         send_to_all(self.players, message)
-                    while self.get_turn_counter() < self.get_max_turns():
+                    while self.get_turn_counter() < self.get_max_turns() and not self.terminate:
                         print(self.current.get_username())
                         try:
                             if self.get_last_bet() > 0:
@@ -118,8 +132,11 @@ class Game:
                         except Exception as e:
                             print(f"Error with client {user.get_address()}: {e}")
                             return None
+                        if self.everyone_folded():
+                            still_playing = False
+                            break
                         player_moved = self.game_queue.get()
-                        if player_moved:
+                        if player_moved and not self.terminate:
                             message = create_message('player_moved', self.current.get_username(), player_moved)
                             send_to_all(self.players, message)
 
@@ -129,18 +146,21 @@ class Game:
                 winner[0].add_chips(self.pot.get_chips())
                 message = create_message('game_over', '', '')
                 send_to_all(self.players, message)
+                for player in self.players:
+                    print("before update chips")
+                    update_chips(player.get_username(), player.get_chips())
                 self.game_queue.put('waiting')
 
     def process_data(self):
         print('process started')
         while True:
             try:
-                incoming_message = self.message_queue.get_nowait()  # Non-blocking get from the queue
+                incoming_message = self.server_to_game_queue.get_nowait()  # Non-blocking get from the queue
                 print("RAW message: ", incoming_message)
                 extra, incoming_message = extract_json(incoming_message)
                 print("extra", extra)
                 if extra:
-                    self.message_queue.put(extra)
+                    self.server_to_game_queue.put(extra)
                 message_data = json.loads(incoming_message)
                 message_type = message_data.get("type")
                 print("JSON message: ", message_data)
@@ -148,10 +168,27 @@ class Game:
                 data2 = message_data.get("data2")
 
                 if message_type == 'start_game':
+                    self.game_started = True
                     message = create_message('approve', 'start_game', '')
                     send_to_all(self.players, message)
                     self.run_game_thread.start()
                     self.game_queue.put('play_again')
+
+                elif message_type == 'leave_game':
+                    for player in self.players:
+                        if player.get_username() == data1:
+                            self.players.remove(player)
+                    if len(self.players) == 0:
+                        message = create_message('remove_game', '', '')
+                        self.game_to_server_queue.put(message)
+                        self.terminate = True
+                        break
+                    else:
+                        message = create_message('player_left', data1, '')
+                        send_to_all(self.players, message)
+                        if data2:
+                            message = create_message('game_host', '', '')
+                            self.players[0].get_user().get_socket().sendall(message.encode('utf-8'))
 
                 elif message_type == 'play_again':
                     self.game_queue.put('play_again')
@@ -174,7 +211,7 @@ class Game:
                         send_to_all(self.players, message)
                         self.player_raised()
                     elif data1 == 'fold':
-                        self.remove_first_player()
+                        self.current.set_active(False)
                     self.next_player()
                     print("Turn count: ", self.get_turn_counter())
                     print("Max Turns: ", self.get_max_turns())
@@ -206,10 +243,6 @@ class Game:
     def get_last_bet(self):
         return self.last_bet
 
-    def remove_first_player(self):
-        self.players.pop(0)
-        self.current = self.players[0]
-
     def get_current(self):
         return self.current
 
@@ -224,3 +257,6 @@ class Game:
 
     def add_players(self, p):
         self.players.append(p)
+
+    def add_pending_players(self, p):
+        self.pending_players.append(p)

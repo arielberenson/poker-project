@@ -44,5 +44,32 @@ def add_to_db(item):
     # Adding user with a unique ID using push() instead of set() which overwrites data
     users_ref.push({
         'username': item[0],
-        'password': item[1]
+        'password': item[1],
+        'chips': 1000
     })
+
+
+def update_chips(username, new_chip_value):
+    users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
+
+    # Query the users to find the user by username
+    matching_users = users_ref.order_by_child('username').equal_to(username).get()
+
+    # If the user exists, update the chips value
+    for user_id, user_data in matching_users.items():
+        # Update the chips value for the found user
+        user_ref = users_ref.child(user_id)
+        user_ref.update({'chips': new_chip_value})
+        return True  # Successfully updated the chips
+
+    return False  # Username not found
+
+
+def fetch_data(username, type):
+    users_ref = initialize_firebase()
+    # Query the users to find the user by username
+    matching_users = users_ref.order_by_child('username').equal_to(username).get()
+
+    # If the user exists, update the chips value
+    for user_id, user_data in matching_users.items():
+        return user_data.get(type)

@@ -6,14 +6,18 @@ import random
 
 
 class User:
-    def __init__(self, client_socket, client_address, username=None, password=None):
+    def __init__(self, client_socket, client_address, username=None, password=None, chips=None):
         self.username = username
         self.password = password
         self.socket = client_socket
         self.address = client_address
+        self.chips = chips
 
     def get_socket(self):
         return self.socket
+
+    def get_chips(self):
+        return self.chips
 
     def get_address(self):
         return self.address
@@ -21,33 +25,21 @@ class User:
     def get_username(self):
         return self.username
 
-    def create_account(self, username, password):
+    def create_account(self, username, password, chips):
         self.username = username
         self.password = password
-
-
-class Users:
-    def __init__(self, users):
-        self.users = users
-
-    def add_user(self, user):
-        self.users.append(user)
-
-    def find_user(self, username):
-        user = next((u for u in self.users if u.get_username() == username), None)
-        return user
-
-    def get_users(self):
-        return self.users
+        self.chips = chips
 
 
 class Player:
-    def __init__(self, user, username, chips):
+    def __init__(self, user, username, chips, spectating=False):
         self.user = user
         self.cards = []
         self.username = username
         self.chips = chips
         self.round_bet = 0
+        self.active = False
+        self.spectating = spectating
 
     def remove_chips(self, n):
         self.chips -= int(n)
@@ -56,9 +48,16 @@ class Player:
     def add_chips(self, n):
         self.chips += n
 
+    def is_active(self):
+        return self.active
+
+    def set_active(self, b):
+        self.active = b
+
     def new_game(self):
         self.round_bet = 0
         self.cards = []
+        self.active = True
 
     def new_round(self):
         self.round_bet = 0

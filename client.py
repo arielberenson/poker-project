@@ -1,6 +1,4 @@
-import pygame
 import threading
-import time
 import socket
 import json
 from queue import Queue
@@ -48,8 +46,6 @@ class Game:
         self.cards = []
         self.last_bet = 0
         self.running = True
-        self.SH = None
-        self.SW = None
         self.players_data = None
         self.join_button_list = None
         self.create_button = None
@@ -58,45 +54,47 @@ class Game:
         self.log_in_button = None
         self.sign_up_button = None
         self.game_over = False
+        self.chips_display = None
+        self.welcome_display = None
+        self.leave_game_button = None
 
     def init_pygame(self):
         pygame.init()
 
-        screen_info = pygame.display.Info()
-        self.SW = screen_info.current_w  # Width of the screen
-        self.SH = screen_info.current_h * 0.9  # Height of the screen
-
-        self.screen = pygame.display.set_mode((self.SW, self.SH))
+        self.screen = pygame.display.set_mode((sw, sh))
         pygame.display.set_caption('Poker Game')
 
         # Create buttons and displays
         self.join_button_list = GamesDisplay()
-        self.play_again_button = Button(400, 400, "Play Again?", self.SW * 0.3, self.SH * 0.3)
-        self.submit_sign_up_button = Button(200, 100, "Submit", self.SW * 0.4, self.SH * 0.8)
-        self.sign_up_username = TextInput(self.SW * 0.4, self.SH * 0.2, 200, 100)
-        self.sign_up_password = TextInput(self.SW * 0.4, self.SH * 0.4, 200, 100)
-        self.create_button = Button(200, 200, "Create", self.SW * 0.60, self.SH * 0.3)
-        self.check_call_button = Button(100, 50, "Check", self.SW * 0.35, self.SH * 0.875)
-        self.raise_button = Button(100, 50, "Raise", self.SW * 0.45, self.SH * 0.875)
-        self.fold_button = Button(100, 50, "Fold", self.SW * 0.55, self.SH * 0.875)
+        self.chips_display = ChipsDisplay("1000")
+        self.leave_game_button = Button(100, 50, "Leave", sw*0.7, sh*0.1)
+        self.welcome_display = TextDisplay(sw * 0.1, sw * 0.1, 36, (0, 0, 0), "Hi, ")
+        self.play_again_button = Button(400, 400, "Play Again?", sw * 0.3, sh * 0.3)
+        self.submit_sign_up_button = Button(200, 100, "Submit", sw * 0.4, sh * 0.8)
+        self.sign_up_username = TextInput(sw * 0.4, sh * 0.2, 200, 100)
+        self.sign_up_password = TextInput(sw * 0.4, sh * 0.4, 200, 100)
+        self.create_button = Button(200, 200, "Create", sw * 0.60, sh * 0.3)
+        self.check_call_button = Button(100, 50, "Check", sw * 0.35, sh * 0.875)
+        self.raise_button = Button(100, 50, "Raise", sw * 0.45, sh * 0.875)
+        self.fold_button = Button(100, 50, "Fold", sw * 0.55, sh * 0.875)
         self.pot_display = TextDisplay(20, 300, 36, (0, 0, 0), "[Pot]")
-        self.input_field = TextInput(self.SW * 0.65, self.SH * 0.875, 100, 50)  # Create input field instance
-        self.confirm_button = Button(50, 50, "X", self.SW * 0.75, self.SH * 0.875, )
-        self.start_button = Button(200, 100, "Start Game", self.SW * 0.45, self.SH * 0.75)
+        self.input_field = TextInput(sw * 0.65, sh * 0.875, 100, 50)  # Create input field instance
+        self.confirm_button = Button(50, 50, "X", sw * 0.75, sh * 0.875, )
+        self.start_button = Button(200, 100, "Start Game", sw * 0.45, sh * 0.75)
         self.players_lobby_display = PlayersLobbyDisplay()
 
-        self.log_in_button = Button(300, 300, "Log in", self.SW * 0.6, self.SH * 0.3)
-        self.sign_up_button = Button(300, 300, "Sign Up", self.SW * 0.3, self.SH * 0.3)
+        self.log_in_button = Button(300, 300, "Log in", sw * 0.6, sh * 0.3)
+        self.sign_up_button = Button(300, 300, "Sign Up", sw * 0.3, sh * 0.3)
 
         self.players_display = PlayersDisplay()
         self.pot_display.update_text("Pot: " + str(self.pot))
 
         # Initialize community cards
-        self.community_card_1 = CardImg(self.SW * 0.2, self.SH * 0.35)
-        self.community_card_2 = CardImg(self.SW * 0.3, self.SH * 0.35)
-        self.community_card_3 = CardImg(self.SW * 0.4, self.SH * 0.35)
-        self.community_card_4 = CardImg(self.SW * 0.5, self.SH * 0.35)
-        self.community_card_5 = CardImg(self.SW * 0.6, self.SH * 0.35)
+        self.community_card_1 = CardImg(sw * 0.2, sh * 0.35)
+        self.community_card_2 = CardImg(sw * 0.3, sh * 0.35)
+        self.community_card_3 = CardImg(sw * 0.4, sh * 0.35)
+        self.community_card_4 = CardImg(sw * 0.5, sh * 0.35)
+        self.community_card_5 = CardImg(sw * 0.6, sh * 0.35)
 
     def setup_socket(self):
         # Set up socket connection
@@ -160,6 +158,7 @@ class Game:
                 self.sign_up_password.draw(self.screen)
                 self.sign_up_username.draw(self.screen)
             if page == 'main':
+                game_host = False
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
@@ -174,6 +173,10 @@ class Game:
                                 self.my_socket.sendall(message.encode('utf-8'))
                 self.join_button_list.draw(self.screen)
                 self.create_button.draw(self.screen)
+                self.chips_display.draw(self.screen, sw * 0.1, sh * 0.1)
+                self.welcome_display.draw(self.screen, sw * 0.3, sh * 0.1)
+                self.welcome_display.update_text("Hi, " + self.name)
+                self.chips_display.update_chips(self.chips)
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'lobby':
                 for event in pygame.event.get():
@@ -183,6 +186,11 @@ class Game:
                         if self.start_button.check_click(event.pos):
                             message = create_message('start_game', '', '')
                             self.my_socket.sendall(message.encode('utf-8'))
+                        if self.leave_game_button.check_click(event.pos):
+                            message = create_message('leave_game', self.name, game_host)
+                            self.my_socket.sendall(message.encode('utf-8'))
+                            page = 'main'
+                self.leave_game_button.draw(self.screen)
                 self.players_lobby_display.draw(self.screen)
                 if game_host and self.players_lobby_display.count() > 1:
                     self.start_button.draw(self.screen)
@@ -235,8 +243,13 @@ class Game:
                         elif self.play_again_button.check_click(event.pos):
                             message = create_message('play_again', '', '')
                             self.my_socket.sendall(message.encode('utf-8'))
+                        if self.leave_game_button.check_click(event.pos):
+                            message = create_message('leave_game', self.name, '')
+                            self.my_socket.sendall(message.encode('utf-8'))
+                            page = 'main'
                     self.input_field.handle_event(event)
                 mouse_pos = pygame.mouse.get_pos()
+                self.leave_game_button.draw(self.screen)
                 self.check_call_button.check_hover(mouse_pos)
                 self.raise_button.check_hover(mouse_pos)
                 self.fold_button.check_hover(mouse_pos)
@@ -318,6 +331,18 @@ class Game:
                         index = next(index for index, player in enumerate(players_data) if player[0] == data1) - 1
                         self.players_display.get_player(index).update_chips(data2)
 
+                elif message_type == 'player_left':
+                    if page == 'lobby':
+                        self.players_lobby_display.remove_player(data1)
+                    else:
+                        self.players_display.remove_player(data1)
+
+                elif message_type == 'remove_game':
+                    self.join_button_list.remove(data1)
+
+                elif message_type == 'game_host':
+                    game_host = True
+
                 elif message_type == 'game_over':
                     self.game_over = True
 
@@ -344,16 +369,18 @@ class Game:
                     self.chips = message_data['data2']
                     self.cards = [Card(card_data['suit'], card_data['val']) for card_data in cards_data]
                     print("CARDS", self.cards)
-                    self.me_display = SelfDisplay(self.SW * 0.45, self.SH * 0.6, self.name,
+                    self.me_display = SelfDisplay(sw * 0.45, sh * 0.6, self.name,
                                                   self.cards[0].get_img(), self.cards[1].get_img(), str(self.chips))
 
                 elif message_type == 'approve':
                     if data1 == 'create':
+                        self.players_lobby_display.clear()
                         self.players_lobby_display.add_players(self.name)
                         page = 'lobby'
                         game_host = True
 
                     if data1 == 'join':
+                        self.players_lobby_display.clear()
                         for name in data2:
                             self.players_lobby_display.add_players(name)
                         page = 'lobby'
@@ -364,11 +391,13 @@ class Game:
 
                     if data1 == 'user':
                         page = 'main'
-                        self.name = data2
+                        self.name = data2[0]
+                        self.chips = data2[1]
 
                     if data1 == 'log in':
                         page = 'main'
-                        self.name = data2
+                        self.name = data2[0]
+                        self.chips = data2[1]
 
                 elif message_type == 'new_game':
                     self.join_button_list.add_game(data1, data2)
@@ -428,6 +457,8 @@ class Game:
         self.game_over = False
         self.pot = 0
 
+
+sw, sh = get_screen_info()
 
 # Create the game object
 message_queue = queue.Queue()
