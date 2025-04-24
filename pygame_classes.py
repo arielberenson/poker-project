@@ -14,6 +14,15 @@ BUTTON_HOVER = (200, 200, 200)
 BUTTON_CLICKED = (100, 100, 100)
 BUTTON_DISABLED = (100, 100, 100)  # Color for disabled button
 
+WIDTH, HEIGHT = 800, 600
+SLIDER_WIDTH = 300
+SLIDER_HEIGHT = 10
+KNOB_RADIUS = 15
+BACKGROUND_COLOR = (255, 255, 255)
+SLIDER_COLOR = (200, 200, 200)
+KNOB_COLOR = (0, 128, 255)
+TEXT_COLOR = (0, 0, 0)
+
 # Fonts
 font = pygame.font.Font(None, 36)
 large_font = pygame.font.Font(None, 42)
@@ -325,6 +334,66 @@ class PlayerDisplay:
         self.combined_surface.blit(self.image, self.image_rect)
         self.combined_surface.blit(self.chips_surface, self.chips_rect)
         self.combined_surface.blit(self.text_surface, self.text_rect)
+
+
+class Slider:
+    def __init__(self, x, y, width, min_value, max_value, initial_value):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.min_value = min_value
+        self.max_value = max_value
+        self.value = initial_value
+        self.knob_x = self._value_to_x(initial_value)
+        self.is_dragging = False
+
+    def _value_to_x(self, value):
+        """Convert slider value to knob position"""
+        return self.x + (value - self.min_value) / (self.max_value - self.min_value) * self.width
+
+    def _x_to_value(self, x_pos):
+        """Convert knob position to slider value"""
+        return (x_pos - self.x) / self.width * (self.max_value - self.min_value) + self.min_value
+
+    def update(self, event):
+        """Handle events and update the slider state"""
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if (self.x <= pygame.mouse.get_pos()[0] <= self.x + self.width and
+                self.y - KNOB_RADIUS <= pygame.mouse.get_pos()[1] <= self.y + SLIDER_HEIGHT + KNOB_RADIUS):
+                if abs(pygame.mouse.get_pos()[0] - self.knob_x) <= KNOB_RADIUS:
+                    self.is_dragging = True
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.is_dragging = False
+
+        if event.type == pygame.MOUSEMOTION:
+            if self.is_dragging:
+                mouse_x = pygame.mouse.get_pos()[0]
+                if self.x <= mouse_x <= self.x + self.width:
+                    self.knob_x = mouse_x
+                    self.value = self._x_to_value(self.knob_x)
+
+    def draw(self, screen):
+        """Draw the slider and knob on the screen"""
+        # Draw the slider background
+        pygame.draw.rect(screen, SLIDER_COLOR, (self.x, self.y, self.width, SLIDER_HEIGHT))
+
+        # Draw the knob
+        pygame.draw.circle(screen, KNOB_COLOR, (int(self.knob_x), self.y + SLIDER_HEIGHT // 2), KNOB_RADIUS)
+
+        # Draw the label
+        text_surface = font.render(str(int(self.value)), True, WHITE)
+        screen.blit(text_surface, (self.x + 40, self.y - 30))
+
+    def get_value(self):
+        """Get the current value of the slider"""
+        return self.value
+
+    def set_max_value(self, val):
+        self.max_value = val
+
+    def set_min_value(self, val):
+        self.min_value = val
 
 
 class SelfDisplay:

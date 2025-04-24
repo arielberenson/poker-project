@@ -43,12 +43,12 @@ class Client:
         self.fold_button = Button(100, 50, "Fold", sw * 0.55, sh * 0.875)
 
         # game - raise
-        self.input_field = TextInput(sw * 0.65, sh * 0.875, 100, 50)  # Create input field instance
+        self.slider = Slider(sw * 0.65, sh * 0.875, 100, 0, 100, 50)
         self.confirm_button = Button(50, 50, "X", sw * 0.75, sh * 0.875, )
 
         # game
         self.chips_display = ChipsDisplay(sw * 0.2, sh * 0.1, "1000")
-        self.leave_game_button = Button(100, 50, "Leave", sw*0.7, sh*0.1)
+        self.leave_game_button = Button(100, 50, "Leave", sw * 0.7, sh * 0.1)
         self.play_again_button = Button(400, 400, "Play Again?", sw * 0.3, sh * 0.3)
         self.pot_display = TextDisplay(36, (0, 0, 0), "[Pot]")
         self.players_display = PlayersDisplay()
@@ -185,21 +185,13 @@ class Client:
                             raise_buttons_hide = False
                             print("RIASE BUTTONS HIDE IS FALSE")
                         elif self.confirm_button.check_click(event.pos):
-                            if self.input_field.get_text():
-                                value = self.input_field.get_text()
+                            if self.slider.get_value():
+                                value = self.slider.get_value()
                                 value = int(value)
-                                if value < self.last_bet * 2:
-                                    print("Raise more than the previous bet: ", self.last_bet)
-                                elif value < 10:
-                                    print("You can't raise less than the blinds")
-                                elif value > self.chips:
-                                    print("You cant raise more than what you have: ", self.chips)
-                                else:
-                                    message = create_message('player_move', 'raise', value)
-                                    self.my_socket.sendall(message.encode('utf-8'))
-                                    buttons_hide = True
-                                    raise_buttons_hide = True
-                                self.input_field.set_text("")
+                                message = create_message('player_move', 'raise', value)
+                                self.my_socket.sendall(message.encode('utf-8'))
+                                buttons_hide = True
+                                raise_buttons_hide = True
                         elif self.fold_button.check_click(event.pos):
                             message = create_message('player_move', 'fold', '')
                             self.my_socket.sendall(message.encode('utf-8'))
@@ -212,7 +204,7 @@ class Client:
                             message = create_message('leave_game', self.name, '')
                             self.my_socket.sendall(message.encode('utf-8'))
                             page = 'main'
-                    self.input_field.handle_event(event)
+                    self.slider.update(event)
                 mouse_pos = pygame.mouse.get_pos()
                 self.leave_game_button.draw(self.screen)
                 self.check_call_button.check_hover(mouse_pos)
@@ -229,9 +221,11 @@ class Client:
                     self.check_call_button.draw(self.screen)
                     self.raise_button.draw(self.screen)
                     self.fold_button.draw(self.screen)
+                    self.slider.set_max_value(min(self.pot*2, self.chips, 5))
+                    self.slider.set_min_value(self.last_bet*2)
                 if not raise_buttons_hide:
                     self.confirm_button.draw(self.screen)
-                    self.input_field.draw(self.screen)
+                    self.slider.draw(self.screen)
                 self.community_cards.draw(self.screen)
                 self.pot_display.draw(self.screen, 5, 5)
                 self.players_display.draw(self.screen)
@@ -267,6 +261,7 @@ class Client:
                     print("Turn ended!")
                     buttons_hide = False  # Disable button when turn ends
                 elif message_type == 'round':
+                    self.last_bet = 0
                     if data1 == 2:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
                         print(l)
@@ -311,6 +306,7 @@ class Client:
                         move, val = data2
                         if val:
                             print(data1, " raised by ", val)
+                            self.last_bet = val
                         else:
                             print(data1, move, "ed")
 
