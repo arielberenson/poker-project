@@ -23,7 +23,7 @@ class Game:
         self.max_turns = len(self.players)
         self.deck = Deck()
         self.deck.shuffle()
-        self.community_cards = Communal(self.deck)
+        self.community_cards = Communal()
         self.server_to_game_queue = server_to_game_queue
         self.game_to_server_queue = game_to_server_queue
         self.game_queue = queue.Queue()
@@ -46,7 +46,7 @@ class Game:
         self.pot.clear_pot()
         self.deck.new_deck()
         self.deck.shuffle()
-        self.community_cards.clear(self.deck)
+        self.community_cards.clear()
         for player in self.players:
             player.new_game()
         self.turn_counter = 0
@@ -111,13 +111,14 @@ class Game:
                     send_to_all(self.players, message)
                     if round == 2:
                         print("round 2 entered")
-                        self.community_cards.flop()
+                        for i in range(3):
+                            self.community_cards.add_card(self.deck.take_card())
                         cards_dict = [card.to_dict() for card in self.community_cards.get_cards()]
                         message = create_message('round', round, cards_dict)
                         print(message)
                         send_to_all(self.players, message)
                     elif round > 2:
-                        self.community_cards.turn()
+                        self.community_cards.add_card(self.deck.take_card())
                         c = [self.community_cards.get_cards()[round]]
                         cards_dict = [card.to_dict() for card in c]
                         message = create_message('round', round, cards_dict)

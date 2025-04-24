@@ -4,6 +4,7 @@ pygame.init()
 screen_info = pygame.display.Info()
 sw = screen_info.current_w  # Width of the screen
 sh = screen_info.current_h  # Height of the screen
+print(sw, sh)
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -15,6 +16,8 @@ BUTTON_DISABLED = (100, 100, 100)  # Color for disabled button
 
 # Fonts
 font = pygame.font.Font(None, 36)
+large_font = pygame.font.Font(None, 42)
+chips_font = pygame.font.Font(None, 20)
 
 
 def get_screen_info():
@@ -105,7 +108,7 @@ class TextInput:
         pygame.draw.rect(screen, border_color, (self.x, self.y, self.width, self.height), 2)
 
         # Draw the text inside the input field
-        text_surface = font.render(self.text, True, self.text_color)
+        text_surface = large_font.render(self.text, True, self.text_color)
         screen.blit(text_surface, (self.x + 10, self.y + 5))
 
     def handle_event(self, event, only_digit=False):
@@ -139,93 +142,114 @@ class TextInput:
         self.text = t
 
 
-class CardImg:
+class CardImages:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.img = 'backs/back04.svg'
+        self.width = sw * 0.08
+        self.height = self.width * 19/14
+        self.cards = []
+        for i in range(5):
+            image = 'backs/back04.svg'
+            self.cards.append(image)
 
-    def update_img(self, img):
-        self.img = img
+    def update_img(self, index, img):
+        self.cards[index] = img
 
     def reset(self):
-        self.img = 'backs/back04.svg'
+        for i in range(5):
+            image = 'backs/back04.svg'
+            self.cards[i] = image
 
     def draw(self, screen):
-        image = pygame.image.load(self.img)
-        # scaled_image = pygame.transform.scale(image, (sw*, sh*))
-        screen.blit(image, (self.x, self.y))
+        i = 0
+        for image in self.cards:
+            image = pygame.image.load(image)
+            scaled_image = pygame.transform.scale(image, (self.width, self.height))
+            screen.blit(scaled_image, (self.x + i * (self.width + sw * 0.02), self.y))
+            i += 1
 
 
 class TextDisplay:
-    def __init__(self, x, y, font_size=36, color=(0, 0, 0), text=''):
-        self.x = x
-        self.y = y
+    def __init__(self, font_size=36, color=(0, 0, 0), text=''):
         self.font_size = font_size
         self.color = color
         self.text = text
         self.font = pygame.font.Font(None, self.font_size)
+        self.text_surface = self.font.render(self.text, True, self.color)
 
     def update_text(self, new_text):
         """Update the text displayed"""
         self.text = new_text
+        self.text_surface = self.font.render(self.text, True, self.color)
 
     def draw(self, screen, x, y):
-        """Draw the text on the screen"""
-        self.x = x
-        self.y = y
-        text_surface = self.font.render(self.text, True, self.color)
-        screen.blit(text_surface, (self.x, self.y))
+        screen.blit(self.text_surface, (x, y))
+
+    def get_surface(self):
+        return self.text_surface
 
 
 class ChipsDisplay:
-    def __init__(self, text, image='images/golden-apple.png', image_size=(50, 50)):
+    def __init__(self, width, height, text, image='images/golden-apple.png'):
         # Load and scale the image
+        self.width = width
+        self.height = height
         loaded_image = pygame.image.load(image)
+        image_size = (sw / 25, sw / 25)
         self.image = pygame.transform.scale(loaded_image, image_size)
-        self.text = text
+        self.text = TextDisplay(36, (0, 0, 0), text)
         self.padding = 5
 
         # Render the text
-        self.text_surface = font.render(self.text, True, (255, 255, 255))
+        self.text_surface = self.text.get_surface()
 
         # Calculate the combined width and height (using the maximum height)
-        self.width = self.image.get_width() + self.text_surface.get_width() + self.padding * 3
-        self.height = max(self.image.get_height(), self.text_surface.get_height()) + self.padding * 2  # Fix here
+        self.content_width = self.image.get_width() + self.text_surface.get_width() + self.padding
+        self.content_height = max(self.image.get_height(), self.text_surface.get_height())
 
         # Create a surface to combine the image and text
         self.combined_surface = pygame.Surface((self.width, self.height))
+        self.combined_surface.fill((46, 77, 62))
 
         # Blit the image onto the combined surface
-        self.image_rect = self.image.get_rect(topleft=(self.padding, (self.height - self.image.get_height()) // 2))
+        self.image_rect = self.image.get_rect(
+            topleft=((self.width - self.content_width)/2, (self.height - self.content_height)/2)
+        )
         self.combined_surface.blit(self.image, self.image_rect)
 
         # Blit the text onto the combined surface (next to the image)
         self.text_rect = self.text_surface.get_rect(
-            topleft=(self.image_rect.right + self.padding, (self.height - self.text_surface.get_height()) // 2))
+            topleft=((self.width - self.content_width)/2 + self.image.get_width() + self.padding,
+                     (self.height - self.content_height)/2)
+        )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
     def update_chips(self, chips):
         # Update the text with the new chip count
-        self.text = str(chips)
-
         # Re-render the text surface
-        self.text_surface = font.render(self.text, True, (255, 255, 255))
+        self.text.update_text(str(chips))
+        self.text_surface = self.text.get_surface()
 
         # Update the width and height based on the new text
-        self.width = self.image.get_width() + self.text_surface.get_width() + self.padding * 3
-        self.height = max(self.image.get_height(), self.text_surface.get_height()) + self.padding * 2
+        self.content_width = self.image.get_width() + self.text_surface.get_width() + self.padding
+        self.content_height = max(self.image.get_height(), self.text_surface.get_height())
 
         # Create a new surface to combine the image and updated text
         self.combined_surface = pygame.Surface((self.width, self.height))
+        self.combined_surface.fill((46, 77, 62))
 
         # Blit the image onto the combined surface
-        self.image_rect = self.image.get_rect(topleft=(self.padding, (self.height - self.image.get_height()) // 2))
+        self.image_rect = self.image.get_rect(
+            topleft=((self.width - self.content_width)/2, (self.height - self.image.get_height())/2)
+        )
         self.combined_surface.blit(self.image, self.image_rect)
 
         # Blit the text onto the combined surface (next to the image)
         self.text_rect = self.text_surface.get_rect(
-            topleft=(self.image_rect.right + self.padding, (self.height - self.text_surface.get_height()) // 2))
+            topleft=((self.width - self.content_width)/2 + self.image.get_width() + self.padding,
+                     (self.height - self.text.get_surface().get_height())/2)
+        )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
     def draw(self, screen, x, y):
@@ -241,39 +265,50 @@ class PlayerDisplay:
         self.padding = padding
         self.chips = chips
         self.text = text
-        self.image = pygame.image.load('backs/back04.svg')
-        self.image = pygame.transform.scale(self.image, (75, 130))
+        self.image = pygame.image.load('backs/back01.png')
+        self.image_width = sw * 0.06
+        self.image_height = self.image_width * 219/185
+        self.image = pygame.transform.scale(self.image, (self.image_width, self.image_height))
 
-        self.text_surface = font.render(self.text, True, (255, 255, 255))
+        self.text_surface = font.render(self.text, True, WHITE)
 
         # Create ChipsDisplay object for displaying chips
-        self.chips_path = ChipsDisplay(chips)
+        self.chips_path = ChipsDisplay(sw * 0.18, sh * 0.1, chips)
         self.chips_surface = self.chips_path.get_surface()
 
-        # Calculate width and height of the combined surface
-        self.width = max(self.chips_surface.get_width(), self.text_surface.get_width(),
-                         self.image.get_width())
+        self.width = sw * 0.3
+        self.height = sh * 0.2
 
-        # Calculate total height: image, chips, text, and padding
-        self.height = self.image.get_height() + self.chips_surface.get_height() + \
-                      self.text_surface.get_height() + self.padding * 4
-
+        self.content_width = self.chips_surface.get_width() + self.image_width + self.padding
+        self.content_height = max(
+            self.chips_surface.get_height() + self.text_surface.get_height() + 5, int(self.image_height) + 1
+        )
         # Create a combined surface to hold the image, chips, and text
         self.combined_surface = pygame.Surface((self.width, self.height))
+        self.combined_surface.fill((46, 77, 62))  # RGB for dark green
 
         # Position the image
-        self.image_rect = self.image.get_rect(topleft=(self.padding, self.padding))
+        self.image_rect = self.image.get_rect(
+            topleft=(
+                (self.width - self.content_width)/2 + max(self.chips_surface.get_width(), self.text_surface.get_width()) + 10,
+                (self.height - self.content_height)/2
+            )
+        )
         self.combined_surface.blit(self.image, self.image_rect)
 
-        # Position the chips display below the image
+        # Position the chips display below the text
         self.chips_rect = self.chips_surface.get_rect(
-            topleft=(self.padding, self.image.get_height() + self.padding * 2))
+            topleft=(
+                (self.width - self.content_width)/2,
+                (self.height - self.content_height)/2 + int(self.text_surface.get_height()) + self.padding
+            )
+        )
         self.combined_surface.blit(self.chips_surface, self.chips_rect)
 
-        # Position the text below the chips
+        # Position the text
         self.text_rect = self.text_surface.get_rect(
-            topleft=(
-                self.padding, self.image.get_height() + self.chips_surface.get_height() + self.padding * 3))
+            topleft=((self.width - self.content_width)/2, (self.height - self.content_height)/2)
+        )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
     def draw(self, screen, x, y):
@@ -285,6 +320,7 @@ class PlayerDisplay:
         self.chips_surface = self.chips_path.get_surface()
 
         self.combined_surface = pygame.Surface((self.width, self.height))
+        self.combined_surface.fill((46, 77, 62)) # RGB for dark green
 
         self.combined_surface.blit(self.image, self.image_rect)
         self.combined_surface.blit(self.chips_surface, self.chips_rect)
@@ -299,14 +335,15 @@ class SelfDisplay:
         self.text = text
         self.image1 = pygame.image.load(img1)
         self.image2 = pygame.image.load(img2)
-        h, w = self.image1.get_size()
-        self.image1 = pygame.transform.scale(self.image1, (h * 0.6, w * 0.6))
-        self.image2 = pygame.transform.scale(self.image2, (h * 0.6, w * 0.6))
+        image_width = sw * 0.09
+        image_height = image_width * 19/14
+        self.image1 = pygame.transform.scale(self.image1, (image_width, image_height))
+        self.image2 = pygame.transform.scale(self.image2, (image_width, image_height))
 
         self.text_surface = font.render(self.text, True, (255, 255, 255))
 
         # Create ChipsDisplay object for displaying chips
-        self.chips_path = ChipsDisplay(chips)
+        self.chips_path = ChipsDisplay(sw * 0.18, sh * 0.1, chips)
         self.chips_surface = self.chips_path.get_surface()
 
         # Calculate width and height of the combined surface
@@ -339,14 +376,14 @@ class SelfDisplay:
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
     def update_img(self, img1, img2):
-        h, w = self.image.get_size()
+        h, w = self.image1.get_size()
         img1 = pygame.image.load(img1)
-        img1 = pygame.transform.scale(img1, (w * 0.6, h * 0.6))
+        img1 = pygame.transform.scale(img1, (w, h))
         self.image1_rect = img1.get_rect(topleft=(self.padding, self.padding))
         self.combined_surface.blit(img1, self.image1_rect)
 
         img2 = pygame.image.load(img2)
-        img2 = pygame.transform.scale(img2, (w * 0.6, h * 0.6))
+        img2 = pygame.transform.scale(img2, (w, h))
         self.image2_rect = img2.get_rect(topleft=(self.padding, self.padding))
         self.combined_surface.blit(img2, self.image2_rect)
 
@@ -406,7 +443,7 @@ class GamesDisplay:
         display = Button(sw * 0.1, sh * 0.1, name + "'s Game")
         self.games.append([display, game_id])
 
-    def remove(self, game_id):
+    def remove_game(self, game_id):
         for game in self.games:
             if game[1] == game_id:
                 self.games.remove(game)
@@ -426,7 +463,7 @@ class PlayersLobbyDisplay:
         self.players = []
 
     def add_players(self, p):
-        display = TextDisplay(int(sw * 0.3), int(sh * 0.1))
+        display = TextDisplay()
         display.update_text(p)
         self.players.append([display, p])
 
@@ -447,5 +484,7 @@ class PlayersLobbyDisplay:
         for player in self.players:
             player[0].draw(screen, int(sw * 0.2), int(sh * 0.1 * i))
             i += 1
+
+
 
 

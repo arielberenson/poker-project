@@ -6,9 +6,8 @@ import random
 
 
 class User:
-    def __init__(self, client_socket, client_address, username=None, password=None, chips=None):
+    def __init__(self, client_socket, client_address, username=None, chips=None):
         self.username = username
-        self.password = password
         self.socket = client_socket
         self.address = client_address
         self.chips = chips
@@ -25,9 +24,8 @@ class User:
     def get_username(self):
         return self.username
 
-    def create_account(self, username, password, chips):
+    def add_user_credentials(self, username, chips):
         self.username = username
-        self.password = password
         self.chips = chips
 
 
@@ -156,23 +154,14 @@ class Pot:
 
 
 class Communal:
-    def __init__(self, deck):
+    def __init__(self):
         self.cards = []
-        self.deck = deck
-
-    def flop(self):
-        for i in range(3):
-            self.cards.append(self.deck.take_card())
-
-    def turn(self):
-        self.cards.append(self.deck.take_card())
-
-    def river(self):
-        self.cards.append(self.deck.take_card())
 
     def get_cards(self):
         return self.cards
 
-    def clear(self, deck):
+    def clear(self):
         self.cards = []
-        self.deck = deck
+
+    def add_card(self, card):
+        self.cards.append(card)

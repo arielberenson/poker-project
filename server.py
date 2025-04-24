@@ -1,16 +1,8 @@
-import queue
-import threading
-import select
-import socket
-
 from firebase import add_to_db, check_username, check_user_credentials, fetch_data
-from poker_classes import *
-import time
-import json
 from game import *
 
 
-class GameServer:
+class Server:
     def __init__(self):
         self.games = {}
         self.game_counter = 1  # To auto-increment the game ID
@@ -37,12 +29,10 @@ class GameServer:
         new_game.create_game()
         return game_id
 
-    def run_game(self, game_id):
-        self.games[game_id][0].start_game()
 
     def start_server(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(('0.0.0.0' , 8820))
+        server_socket.bind(('0.0.0.0', 8820))
         server_socket.listen(1)
         print("Server is listening for connections...")
         client_socket, client_address = server_socket.accept()
@@ -84,7 +74,7 @@ class GameServer:
                                     break
                             if len(current_game.get_players()) > 2:
                                 message = create_message('reject', 'join', '')
-                                user.get_socket.sendall(message.encode('utf-8'))
+                                user.get_socket().sendall(message.encode('utf-8'))
                             else:
                                 p = Player(user, user.get_username(), 1000)
                                 if current_game.is_game_started():
@@ -111,7 +101,7 @@ class GameServer:
                             if user.get_address() == tuple(data2):
                                 if check_username(data1[0]):
                                     add_to_db(data1)
-                                    user.create_account(data1[0], data1[1], fetch_data(data1[0], 'chips'))
+                                    user.add_user_credentials(data1[0], fetch_data(data1[0], 'chips'))
                                     print('for ', data2, ' accepted ', data1[0])
                                     for game_id, game_data in self.games.items():
                                         message = create_message('new_game', game_data[3], game_id)
@@ -122,8 +112,8 @@ class GameServer:
                                 user.get_socket().sendall(message.encode('utf-8'))
                         elif message_type == 'log_in':
                             if user.get_address() == tuple(data2):
-                                if check_user_credentials(data1):
-                                    user.create_account(data1[0], data1[1], fetch_data(data1[0], 'chips'))
+                                if check_user_credentials(data1) and self.check_username(data1[0]):
+                                    user.add_user_credentials(data1[0], fetch_data(data1[0], 'chips'))
                                     for game_id, game_data in self.games.items():
                                         message = create_message('new_game', game_data[3], game_id)
                                         user.get_socket().sendall(message.encode('utf-8'))
@@ -169,3 +159,9 @@ class GameServer:
 
             for game_id in remove_games:
                 self.games.pop(game_id, None)
+
+    def check_username(self, username):
+        for u in self.users:
+            if u.get_username() == username:
+                return False
+        return True
