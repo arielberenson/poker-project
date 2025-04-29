@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.13" pages="6">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.14" pages="6">
   <diagram name="Page-1" id="loPU3zmZzHOAl2yBzBA7">
     <mxGraphModel dx="2627" dy="1417" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" adaptiveColors="simple">
       <root>
@@ -8,78 +8,121 @@
     </mxGraphModel>
   </diagram>
   <diagram id="fWWd-IGaokTDZ0jOi2e6" name="Page-2">
-    <mxGraphModel dx="1313" dy="708" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1042" dy="570" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-1" target="AxxpQYqutu6Z9lSdm2nC-2" edge="1">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-1" target="AxxpQYqutu6Z9lSdm2nC-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="AxxpQYqutu6Z9lSdm2nC-1" value="שרת" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="320" y="40" width="120" height="80" as="geometry" />
+          <mxGeometry x="230" y="180" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="AxxpQYqutu6Z9lSdm2nC-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-2" target="AxxpQYqutu6Z9lSdm2nC-4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="AxxpQYqutu6Z9lSdm2nC-2" value="התחברות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="320" y="180" width="120" height="60" as="geometry" />
+          <mxGeometry x="405" y="190" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-6" edge="1">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="iDkQdx9FitHDoWIYwLgk-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="AxxpQYqutu6Z9lSdm2nC-8" edge="1">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="iDkQdx9FitHDoWIYwLgk-10">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="M4k14wv83IE-usvoSfUF-8">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-4" target="iDkQdx9FitHDoWIYwLgk-17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="AxxpQYqutu6Z9lSdm2nC-4" value="המתנה ללקוח ראשון" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="320" y="290" width="120" height="60" as="geometry" />
+          <mxGeometry x="405" y="290" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-6" value="הקשבה להתחברויות נוספות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="220" y="420" width="120" height="60" as="geometry" />
+        <mxCell id="M4k14wv83IE-usvoSfUF-2" value="ביצוע פעולה לפי&lt;div&gt;סוג הודעה&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="405" y="620" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="AxxpQYqutu6Z9lSdm2nC-8" target="M4k14wv83IE-usvoSfUF-2">
+        <mxCell id="M4k14wv83IE-usvoSfUF-8" value="לכל משחק: ריצת משחק" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="585" y="620" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-1" value="התחברות לקוח" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="225" y="620" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-3" target="iDkQdx9FitHDoWIYwLgk-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AxxpQYqutu6Z9lSdm2nC-8" value="הקשבה להודעות" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="400" y="420" width="120" height="60" as="geometry" />
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-6" value="כן" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-5">
+          <mxGeometry x="-0.16" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="M4k14wv83IE-usvoSfUF-2" target="M4k14wv83IE-usvoSfUF-4">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-3" value="יש לקוח ממתין&lt;div&gt;להתחברות?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="420" width="110" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-3" target="iDkQdx9FitHDoWIYwLgk-3">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="580" y="570" />
-              <mxPoint x="580" y="570" />
+              <mxPoint x="200" y="475" />
+              <mxPoint x="200" y="420" />
+              <mxPoint x="258" y="420" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-2" value="קבלת הודעה ופעילות&lt;div&gt;לפי סוגה&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="540" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="M4k14wv83IE-usvoSfUF-4" target="M4k14wv83IE-usvoSfUF-6">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-14" value="כן" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="M4k14wv83IE-usvoSfUF-7">
-          <mxGeometry x="-0.1963" y="2" relative="1" as="geometry">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-9" value="לא" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-8">
+          <mxGeometry x="0.2533" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="M4k14wv83IE-usvoSfUF-4" target="AxxpQYqutu6Z9lSdm2nC-8">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-10" target="M4k14wv83IE-usvoSfUF-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-16" value="לא" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="M4k14wv83IE-usvoSfUF-15">
-          <mxGeometry x="-0.0301" y="3" relative="1" as="geometry">
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-16" value="כן" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-15">
+          <mxGeometry x="-0.0756" y="1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-4" value="האם ההודעה בקשה&amp;nbsp;&lt;div&gt;למשחק חדש?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="630" y="505" width="130" height="130" as="geometry" />
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-10" value="יש הודעות&lt;div&gt;ממתינות לטיפול?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="420" width="110" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-6" value="פתיחת משחק חדש&lt;div&gt;ואיחסון משחק&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="840" y="540" width="120" height="60" as="geometry" />
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-10" target="iDkQdx9FitHDoWIYwLgk-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="475" />
+              <mxPoint x="380" y="420" />
+              <mxPoint x="438" y="420" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="M4k14wv83IE-usvoSfUF-8" value="לכל משחק: ריצת משחק" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="580" y="420" width="120" height="60" as="geometry" />
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-13" value="לא" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-12">
+          <mxGeometry x="0.32" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-17" target="M4k14wv83IE-usvoSfUF-8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="645" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-22" value="כן" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-21">
+          <mxGeometry x="-0.2533" y="-3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-17" value="יש משחקים&lt;div&gt;שכבר התחילו?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="420" width="110" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="iDkQdx9FitHDoWIYwLgk-17" target="iDkQdx9FitHDoWIYwLgk-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560" y="475" />
+              <mxPoint x="560" y="420" />
+              <mxPoint x="618" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iDkQdx9FitHDoWIYwLgk-23" value="לא" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iDkQdx9FitHDoWIYwLgk-19">
+          <mxGeometry x="0.3253" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
