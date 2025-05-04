@@ -25,8 +25,7 @@ def check_username(username):
     return bool(not existing_users)  # Returns True if the username exists, else False
 
 
-def check_user_credentials(user_credentials):
-    username, password = user_credentials
+def check_user_credentials(username, password):
     users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
 
     # Query the database for the given username

@@ -29,7 +29,6 @@ class Server:
         new_game.create_game()
         return game_id
 
-
     def start_server(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.bind(('0.0.0.0', 8820))
@@ -81,7 +80,7 @@ class Server:
                                     current_game.add_pending_players(p)
                                 else:
                                     current_game.add_players(p)
-                                message = create_message('player_joined', 'lobby', data2)
+                                message = create_message('player_joined', 'lobby', user.get_username())
                                 send_to_all(current_game.get_players(), message)
                                 names = []
                                 for p in current_game.get_players():
@@ -89,38 +88,32 @@ class Server:
                                 message = create_message('approve', 'join', names)
                                 user.get_socket().sendall(message.encode('utf-8'))
                         elif message_type == 'create':
-                            print('username: ', user.get_username())
                             game_id = self.create_game(user)
                             message = create_message('approve', 'create', '')
                             user.get_socket().sendall(message.encode('utf-8'))
                             message = create_message('new_game', user.get_username(), game_id)
                             send_to_all(self.users, message)
                         elif message_type == 'sign_up':
-                            print("real", user.get_address())
-                            print("sent", data2)
-                            if user.get_address() == tuple(data2):
-                                if check_username(data1[0]):
-                                    add_to_db(data1)
-                                    user.add_user_credentials(data1[0], fetch_data(data1[0], 'chips'))
-                                    print('for ', data2, ' accepted ', data1[0])
-                                    for game_id, game_data in self.games.items():
-                                        message = create_message('new_game', game_data[3], game_id)
-                                        user.get_socket().sendall(message.encode('utf-8'))
-                                    message = create_message('approve', 'user', (data1[0], user.get_chips()))
-                                else:
-                                    message = create_message('reject', 'user', '')
-                                user.get_socket().sendall(message.encode('utf-8'))
+                            if check_username(data1):
+                                add_to_db(data1, data2)
+                                user.add_user_credentials(data1, fetch_data(data1, 'chips'))
+                                for game_id, game_data in self.games.items():
+                                    message = create_message('new_game', game_data[3], game_id)
+                                    user.get_socket().sendall(message.encode('utf-8'))
+                                message = create_message('approve', 'user', (data1, user.get_chips()))
+                            else:
+                                message = create_message('reject', 'user', '')
+                            user.get_socket().sendall(message.encode('utf-8'))
                         elif message_type == 'log_in':
-                            if user.get_address() == tuple(data2):
-                                if check_user_credentials(data1) and self.check_username(data1[0]):
-                                    user.add_user_credentials(data1[0], fetch_data(data1[0], 'chips'))
-                                    for game_id, game_data in self.games.items():
-                                        message = create_message('new_game', game_data[3], game_id)
-                                        user.get_socket().sendall(message.encode('utf-8'))
-                                    message = create_message('approve', 'log in', (data1[0], user.get_chips()))
-                                else:
-                                    message = create_message('reject', 'log in', data1[0])
-                                user.get_socket().sendall(message.encode('utf-8'))
+                            if check_user_credentials(data1, data2) and self.check_username(data1):
+                                user.add_user_credentials(data1, fetch_data(data1, 'chips'))
+                                for game_id, game_data in self.games.items():
+                                    message = create_message('new_game', game_data[3], game_id)
+                                    user.get_socket().sendall(message.encode('utf-8'))
+                                message = create_message('approve', 'log in', (data1, user.get_chips()))
+                            else:
+                                message = create_message('reject', 'log in', data1)
+                            user.get_socket().sendall(message.encode('utf-8'))
                         else:
                             print(self.games)
                             for game in self.games.values():

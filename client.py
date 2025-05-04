@@ -95,7 +95,7 @@ class Client:
                             if self.sign_up_username.get_text() and self.sign_up_password.get_text():
                                 username = self.sign_up_username.get_text()
                                 password = self.sign_up_password.get_text()
-                                message = create_message('sign_up', (username, password), self.my_socket.getsockname())
+                                message = create_message('sign_up', username, password)
                                 self.my_socket.sendall(message.encode('utf-8'))
                                 self.sign_up_password.set_text('')
                                 self.sign_up_username.set_text('')
@@ -113,7 +113,7 @@ class Client:
                             if self.sign_up_username.get_text() and self.sign_up_password.get_text():
                                 username = self.sign_up_username.get_text()
                                 password = self.sign_up_password.get_text()
-                                message = create_message('log_in', (username, password), self.my_socket.getsockname())
+                                message = create_message('log_in', username, password)
                                 self.my_socket.sendall(message.encode('utf-8'))
                                 self.sign_up_password.set_text('')
                                 self.sign_up_username.set_text('')
@@ -129,12 +129,12 @@ class Client:
                         self.running = False
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.create_button.check_click(event.pos):
-                            message = create_message('create', self.name, '')
+                            message = create_message('create', '', '')
                             print(message)
                             self.my_socket.sendall(message.encode('utf-8'))
                         for game in self.join_button_list.get_games():
                             if game[0].check_click(event.pos):
-                                message = create_message('join', game[1], self.name)
+                                message = create_message('join', game[1], '')
                                 self.my_socket.sendall(message.encode('utf-8'))
                 self.join_button_list.draw(self.screen)
                 self.create_button.draw(self.screen)
