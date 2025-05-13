@@ -1,3 +1,5 @@
+import socket
+
 from firebase import add_to_db, check_username, check_user_credentials, fetch_data
 from game import *
 

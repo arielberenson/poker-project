@@ -51,7 +51,6 @@ class Game:
             player.new_game()
         self.turn_counter = 0
         self.max_turns = len(self.players)
-        self.last_bet = 0
 
     def everyone_folded(self):
         count = 0
@@ -81,7 +80,7 @@ class Game:
             if play_again == 'play_again' and not self.terminate:
                 self.play_again()
                 print("game start")
-                for player in self.get_players():
+                for player in self.players:
                     user = player.get_user()
                     message = create_message('play_again', '', '')
                     user.get_socket().sendall(message.encode('utf-8'))
@@ -92,7 +91,7 @@ class Game:
                     user.get_socket().sendall(message.encode('utf-8'))
 
                 players_data = []
-                for player in self.get_players():
+                for player in self.players:
                     data = (player.get_username(), player.get_chips())
                     players_data.append(data)
                 message = create_message('players', players_data, '')
@@ -105,10 +104,12 @@ class Game:
                     round += 1
                     print(round)
                     self.new_round()
-                    print("Turn count: ", self.get_turn_counter())
-                    print("Max Turns: ", self.get_max_turns())
+                    print("Turn count: ", self.turn_counter)
+                    print("Max Turns: ", self.max_turns)
                     message = create_message('round_bet', 0, '')
                     send_to_all(self.players, message)
+                    if round == 1:
+                        self.last_bet = 5
                     if round == 2:
                         print("round 2 entered")
                         for i in range(3):
@@ -123,16 +124,12 @@ class Game:
                         cards_dict = [card.to_dict() for card in c]
                         message = create_message('round', round, cards_dict)
                         send_to_all(self.players, message)
-                    while self.get_turn_counter() < self.get_max_turns() and not self.terminate:
+                    while self.turn_counter < self.max_turns and not self.terminate:
                         print(self.current.get_username())
                         try:
-                            if self.get_last_bet() > 0:
-                                pressure = 'pressure'
-                            else:
-                                pressure = 'no pressure'
                             user = self.current.get_user()
                             # Notify the current player whose turn it is
-                            message = create_message('turn', self.current.get_username(), pressure)
+                            message = create_message('turn', self.current.get_username(), self.last_bet)
                             send_to_all(self.players, message)
                         except Exception as e:
                             print(f"Error with client {user.get_address()}: {e}")
@@ -218,8 +215,8 @@ class Game:
                     elif data1 == 'fold':
                         self.current.set_active(False)
                     self.next_player()
-                    print("Turn count: ", self.get_turn_counter())
-                    print("Max Turns: ", self.get_max_turns())
+                    print("Turn count: ", self.turn_counter)
+                    print("Max Turns: ", self.max_turns)
                     self.game_queue.put((data1, data2))
 
             except queue.Empty:
@@ -237,31 +234,18 @@ class Game:
         self.turn_counter += 1
 
     def place_bet(self, n):
+        print()
+        print("HOW MUCH LESS?", n, self.current.get_round_bet())
         self.current.remove_chips(n - self.current.get_round_bet())
         self.pot.add_chips(n)
         if self.last_bet < n:
             self.last_bet = n
-
-    def set_last_bet(self, bet):
-        self.last_bet = bet
-
-    def get_last_bet(self):
-        return self.last_bet
-
-    def get_current(self):
-        return self.current
-
-    def get_players(self):
-        return self.players
-
-    def get_turn_counter(self):
-        return self.turn_counter
-
-    def get_max_turns(self):
-        return self.max_turns
 
     def add_players(self, p):
         self.players.append(p)
 
     def add_pending_players(self, p):
         self.pending_players.append(p)
+
+    def get_players(self):
+        return self.players

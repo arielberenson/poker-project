@@ -274,7 +274,7 @@ class PlayerDisplay:
         self.padding = padding
         self.chips = chips
         self.text = text
-        self.image = pygame.image.load('backs/back01.png')
+        self.image = pygame.image.load('backs/back04.svg')
         self.image_width = sw * 0.06
         self.image_height = self.image_width * 219/185
         self.image = pygame.transform.scale(self.image, (self.image_width, self.image_height))
@@ -352,8 +352,8 @@ class Slider:
         return self.x + (value - self.min_value) / (self.max_value - self.min_value) * self.width
 
     def _x_to_value(self, x_pos):
-        """Convert knob position to slider value"""
-        return (x_pos - self.x) / self.width * (self.max_value - self.min_value) + self.min_value
+        value = (x_pos - self.x) / self.width * (self.max_value - self.min_value) + self.min_value
+        return max(self.min_value, min(self.max_value, value))
 
     def update(self, event):
         """Handle events and update the slider state"""
@@ -382,12 +382,16 @@ class Slider:
         pygame.draw.circle(screen, KNOB_COLOR, (int(self.knob_x), self.y + SLIDER_HEIGHT // 2), KNOB_RADIUS)
 
         # Draw the label
-        text_surface = font.render(str(int(self.value)), True, WHITE)
+        text_surface = font.render(str(round(self.value)), True, WHITE)
         screen.blit(text_surface, (self.x + 40, self.y - 30))
 
     def get_value(self):
         """Get the current value of the slider"""
         return self.value
+
+    def set_values(self, a, b):
+        self.min_value = a
+        self.max_value = b
 
     def set_max_value(self, val):
         self.max_value = val

@@ -38,12 +38,12 @@ def check_user_credentials(username, password):
     return False  # No matching user found
 
 
-def add_to_db(item):
+def add_to_db(username, password):
     users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
     # Adding user with a unique ID using push() instead of set() which overwrites data
     users_ref.push({
-        'username': item[0],
-        'password': item[1],
+        'username': username,
+        'password': password,
         'chips': 1000
     })
 

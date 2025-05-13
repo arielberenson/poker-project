@@ -10,6 +10,7 @@ import queue
 class Client:
     def __init__(self):
         # misc
+        self.chips = None
         self.whose_turn = None
         self.me_display = None
         self.running = True
@@ -221,8 +222,7 @@ class Client:
                     self.check_call_button.draw(self.screen)
                     self.raise_button.draw(self.screen)
                     self.fold_button.draw(self.screen)
-                    self.slider.set_max_value(min(self.pot*2, self.chips, 5))
-                    self.slider.set_min_value(self.last_bet*2)
+                    self.slider.set_values(5, min(self.pot*2 - self.last_bet, self.chips))
                 if not raise_buttons_hide:
                     self.confirm_button.draw(self.screen)
                     self.slider.draw(self.screen)
@@ -248,24 +248,29 @@ class Client:
                 print("JSON message: ", message_data)
                 data1 = message_data.get("data1")
                 data2 = message_data.get("data2")
+
                 if message_type == 'turn':
                     if data1 == self.name:
                         print("It's your turn!")
                         buttons_hide = False  # Enable button when it's the player's turn
-                        if data2 == 'no pressure':
-                            pressure = False
-                        if data2 == 'pressure':
+                        self.last_bet = data2
+                        if self.last_bet > 0:
                             pressure = True
+                        else:
+                            pressure = False
+
                     self.whose_turn = data1
+
                 elif message_type == 'end_turn':
                     print("Turn ended!")
                     buttons_hide = False  # Disable button when turn ends
+
                 elif message_type == 'round':
                     self.last_bet = 0
                     if data1 == 2:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
                         print(l)
-                        for i in range(2):
+                        for i in range(3):
                             self.community_cards.update_img(i, l[i].get_img())
                     if data1 == 3:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
@@ -273,6 +278,7 @@ class Client:
                     if data1 == 4:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
                         self.community_cards.update_img(4, l[0].get_img())
+
                 elif message_type == 'pot':
                     if data1:
                         self.pot = data1
@@ -364,6 +370,7 @@ class Client:
 
                 elif message_type == 'play_again':
                     self.new_game()
+                    page = 'game'
 
             except queue.Empty:
                 pass  # No message to process, simply skip
