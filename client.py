@@ -17,7 +17,8 @@ class Client:
         self.pot = None
         self.game_over = None
         self.players_data = None
-        self.last_bet = 0
+        self.highest_round_bet = 0
+        self.player_round_bet = 0
         self.my_socket = None
         self.name = None
         self.cards = None
@@ -44,7 +45,7 @@ class Client:
         self.fold_button = Button(100, 50, "Fold", sw * 0.55, sh * 0.875)
 
         # game - raise
-        self.slider = Slider(sw * 0.65, sh * 0.875, 100, 0, 100, 50)
+        self.slider = Slider(sw * 0.65, sh * 0.875, 100, 5, 100, 50)
         self.confirm_button = Button(50, 50, "X", sw * 0.75, sh * 0.875, )
 
         # game
@@ -65,7 +66,7 @@ class Client:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('127.0.0.1', 8820))
+        self.my_socket.connect(('10.116.4.173', 8820))
 
     def run_pygame(self, message_queue):
         game_host = False
@@ -163,7 +164,7 @@ class Client:
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'game':
                 if pressure:
-                    self.check_call_button.update_text("Call")
+                    self.check_call_button.update_text(f"Call [{self.highest_round_bet - self.player_round_bet}]")
                 else:
                     self.check_call_button.update_text("Check")
                 # Handle events and update game screen
@@ -187,10 +188,10 @@ class Client:
                             print("RIASE BUTTONS HIDE IS FALSE")
                         elif self.confirm_button.check_click(event.pos):
                             if self.slider.get_value():
-                                value = self.slider.get_value()
-                                value = int(value)
+                                value = int(self.slider.get_value() + self.highest_round_bet)
                                 message = create_message('player_move', 'raise', value)
                                 self.my_socket.sendall(message.encode('utf-8'))
+                                self.player_round_bet += value
                                 buttons_hide = True
                                 raise_buttons_hide = True
                         elif self.fold_button.check_click(event.pos):
@@ -222,7 +223,13 @@ class Client:
                     self.check_call_button.draw(self.screen)
                     self.raise_button.draw(self.screen)
                     self.fold_button.draw(self.screen)
-                    self.slider.set_values(5, min(self.pot*2 - self.last_bet, self.chips))
+                    if self.highest_round_bet == 0:
+                        self.slider.set_min_value(5)
+                    else:
+                        self.slider.set_min_value(self.highest_round_bet)
+                    self.slider.set_max_value(min(self.pot*2 - self.player_round_bet, self.chips))
+                    print("POT", self.pot*2)
+                    print("round bet", self.player_round_bet)
                 if not raise_buttons_hide:
                     self.confirm_button.draw(self.screen)
                     self.slider.draw(self.screen)
@@ -253,8 +260,8 @@ class Client:
                     if data1 == self.name:
                         print("It's your turn!")
                         buttons_hide = False  # Enable button when it's the player's turn
-                        self.last_bet = data2
-                        if self.last_bet > 0:
+                        self.highest_round_bet = data2
+                        if self.highest_round_bet > 0:
                             pressure = True
                         else:
                             pressure = False
@@ -266,7 +273,8 @@ class Client:
                     buttons_hide = False  # Disable button when turn ends
 
                 elif message_type == 'round':
-                    self.last_bet = 0
+                    self.highest_round_bet = 0
+                    self.player_round_bet = 0
                     if data1 == 2:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
                         print(l)
@@ -312,7 +320,6 @@ class Client:
                         move, val = data2
                         if val:
                             print(data1, " raised by ", val)
-                            self.last_bet = val
                         else:
                             print(data1, move, "ed")
 

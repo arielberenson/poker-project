@@ -337,67 +337,96 @@ class PlayerDisplay:
 
 
 class Slider:
-    def __init__(self, x, y, width, min_value, max_value, initial_value):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.min_value = min_value
-        self.max_value = max_value
-        self.value = initial_value
-        self.knob_x = self._value_to_x(initial_value)
+    def __init__(self, x, y, width, min_value, max_value, initial_value,
+                 height=10, knob_radius=8, slider_color=(180, 180, 180),
+                 knob_color=(100, 100, 255), font=None, font_color=(255, 255, 255)):
+        self.x = float(x)
+        self.y = float(y)
+        self.width = float(width)
+        self.height = float(height)
+        self.knob_radius = float(knob_radius)
+
+        self.min_value = float(min_value)
+        self.max_value = float(max_value)
+        self.value = float(initial_value)
+
+        self.knob_x = self._value_to_x(self.value)
         self.is_dragging = False
 
+        self.slider_color = slider_color
+        self.knob_color = knob_color
+        self.font = font or pygame.font.SysFont(None, 24)
+        self.font_color = font_color
+
     def _value_to_x(self, value):
-        """Convert slider value to knob position"""
-        return self.x + (value - self.min_value) / (self.max_value - self.min_value) * self.width
+        """Convert slider value to knob x-position."""
+        return self.x + ((value - self.min_value) / (self.max_value - self.min_value)) * self.width
 
     def _x_to_value(self, x_pos):
-        value = (x_pos - self.x) / self.width * (self.max_value - self.min_value) + self.min_value
+        """Convert x-position to slider value, clamped to bounds."""
+        value = ((x_pos - self.x) / self.width) * (self.max_value - self.min_value) + self.min_value
         return max(self.min_value, min(self.max_value, value))
 
     def update(self, event):
-        """Handle events and update the slider state"""
+        """Handle mouse events to update slider state with snapping."""
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if (self.x <= pygame.mouse.get_pos()[0] <= self.x + self.width and
-                self.y - KNOB_RADIUS <= pygame.mouse.get_pos()[1] <= self.y + SLIDER_HEIGHT + KNOB_RADIUS):
-                if abs(pygame.mouse.get_pos()[0] - self.knob_x) <= KNOB_RADIUS:
-                    self.is_dragging = True
+            mouse_x, mouse_y = event.pos
+            in_slider_area = (
+                    self.x <= mouse_x <= self.x + self.width and
+                    self.y - self.knob_radius <= mouse_y <= self.y + self.height + self.knob_radius
+            )
+            if in_slider_area and abs(mouse_x - self.knob_x) <= self.knob_radius:
+                self.is_dragging = True
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONUP:
             self.is_dragging = False
 
-        if event.type == pygame.MOUSEMOTION:
-            if self.is_dragging:
-                mouse_x = pygame.mouse.get_pos()[0]
-                if self.x <= mouse_x <= self.x + self.width:
-                    self.knob_x = mouse_x
-                    self.value = self._x_to_value(self.knob_x)
+        elif event.type == pygame.MOUSEMOTION and self.is_dragging:
+            mouse_x = event.pos[0]
+            # Clamp within track
+            mouse_x = max(self.x, min(self.x + self.width, mouse_x))
+            raw_value = self._x_to_value(mouse_x)
+            snapped_value = round(raw_value)
+            self.value = snapped_value
+            self.knob_x = self._value_to_x(self.value)
 
     def draw(self, screen):
-        """Draw the slider and knob on the screen"""
-        # Draw the slider background
-        pygame.draw.rect(screen, SLIDER_COLOR, (self.x, self.y, self.width, SLIDER_HEIGHT))
+        """Draw the slider and its knob."""
+        # Slider track
+        pygame.draw.rect(screen, self.slider_color, (self.x, self.y, self.width, self.height))
 
-        # Draw the knob
-        pygame.draw.circle(screen, KNOB_COLOR, (int(self.knob_x), self.y + SLIDER_HEIGHT // 2), KNOB_RADIUS)
+        # Knob
+        pygame.draw.circle(screen, self.knob_color,
+                           (int(self.knob_x), int(self.y + self.height / 2)),
+                           int(self.knob_radius))
 
-        # Draw the label
-        text_surface = font.render(str(round(self.value)), True, WHITE)
-        screen.blit(text_surface, (self.x + 40, self.y - 30))
+        # Value label
+        label = self.font.render(str(int(self.value)), True, self.font_color)
+
+        label_rect = label.get_rect(center=(self.knob_x, self.y - 20))
+        screen.blit(label, label_rect)
 
     def get_value(self):
-        """Get the current value of the slider"""
+        """Return the current value of the slider."""
         return self.value
 
-    def set_values(self, a, b):
-        self.min_value = a
-        self.max_value = b
-
-    def set_max_value(self, val):
-        self.max_value = val
+    def set_value(self, new_value):
+        """Set the slider to a new value and update knob position."""
+        self.value = max(self.min_value, min(self.max_value, float(new_value)))
+        self.knob_x = self._value_to_x(self.value)
 
     def set_min_value(self, val):
-        self.min_value = val
+        self.min_value = float(val)
+        self.set_value(self.value)  # Re-evaluate position
+
+    def set_max_value(self, val):
+        self.max_value = float(val)
+        self.set_value(self.value)  # Re-evaluate position
+
+    def set_range(self, min_val, max_val):
+        self.min_value = float(min_val)
+        self.max_value = float(max_val)
+        self.set_value(self.value)
 
 
 class SelfDisplay:
