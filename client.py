@@ -22,6 +22,8 @@ class Client:
         self.my_socket = None
         self.name = None
         self.cards = None
+        self.game_host = False
+        self.all_in = False
         # log in / sign up
         self.log_in_button = Button(sw * 0.25, sh * 0.3, "Log in", sw * 0.55, sh * 0.3)
         self.sign_up_button = Button(sw * 0.25, sh * 0.3, "Sign Up", sw * 0.2, sh * 0.3)
@@ -46,13 +48,14 @@ class Client:
 
         # game - raise
         self.slider = Slider(sw * 0.65, sh * 0.875, 100, 5, 100, 50)
-        self.confirm_button = Button(50, 50, "X", sw * 0.75, sh * 0.875, )
+        self.confirm_button = Button(50, 50, "OK", sw * 0.75, sh * 0.875, )
 
         # game
         self.chips_display = ChipsDisplay(sw * 0.2, sh * 0.1, "1000")
         self.leave_game_button = Button(100, 50, "Leave", sw * 0.7, sh * 0.1)
         self.play_again_button = Button(400, 400, "Play Again?", sw * 0.3, sh * 0.3)
-        self.pot_display = TextDisplay(36, (0, 0, 0), "[Pot]")
+
+        self.pot_img_display = PotDisplay(sw*0.1, sh*0.1)
         self.players_display = PlayersDisplay()
 
         # Initialize community cards
@@ -69,7 +72,7 @@ class Client:
         self.my_socket.connect(('10.116.4.173', 8820))
 
     def run_pygame(self, message_queue):
-        game_host = False
+        self.game_host = False
         page = 'start'
         print("GAME STARTED")
         buttons_hide = True
@@ -125,7 +128,7 @@ class Client:
                 self.sign_up_password.draw(self.screen)
                 self.sign_up_username.draw(self.screen)
             if page == 'main':
-                game_host = False
+                self.game_host = False
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
@@ -154,12 +157,12 @@ class Client:
                             message = create_message('start_game', '', '')
                             self.my_socket.sendall(message.encode('utf-8'))
                         if self.leave_game_button.check_click(event.pos):
-                            message = create_message('leave_game', self.name, game_host)
+                            message = create_message('leave_game', self.name, self.game_host)
                             self.my_socket.sendall(message.encode('utf-8'))
                             page = 'main'
                 self.leave_game_button.draw(self.screen)
                 self.players_lobby_display.draw(self.screen)
-                if game_host and self.players_lobby_display.count() > 1:
+                if self.game_host and self.players_lobby_display.count() > 1:
                     self.start_button.draw(self.screen)
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'game':
@@ -184,7 +187,7 @@ class Client:
                                 buttons_hide = True
                             raise_buttons_hide = True
                         elif self.raise_button.check_click(event.pos):
-                            raise_buttons_hide = False
+                            raise_buttons_hide = not raise_buttons_hide
                             print("RIASE BUTTONS HIDE IS FALSE")
                         elif self.confirm_button.check_click(event.pos):
                             if self.slider.get_value():
@@ -223,24 +226,22 @@ class Client:
                     self.check_call_button.draw(self.screen)
                     self.raise_button.draw(self.screen)
                     self.fold_button.draw(self.screen)
+                    self.slider.set_max_value(min(self.pot*2 - self.player_round_bet, self.chips))
                     if self.highest_round_bet == 0:
                         self.slider.set_min_value(5)
                     else:
                         self.slider.set_min_value(self.highest_round_bet)
-                    self.slider.set_max_value(min(self.pot*2 - self.player_round_bet, self.chips))
-                    print("POT", self.pot*2)
-                    print("round bet", self.player_round_bet)
                 if not raise_buttons_hide:
                     self.confirm_button.draw(self.screen)
                     self.slider.draw(self.screen)
                 self.community_cards.draw(self.screen)
-                self.pot_display.draw(self.screen, 5, 5)
+                self.pot_img_display.draw(self.screen)
                 self.players_display.draw(self.screen)
                 if self.cards:
                     self.me_display.draw(self.screen)
-                self.pot_display.update_text("Pot: " + str(self.pot))
+                self.pot_img_display.update(self.pot)
 
-                if self.game_over and game_host:
+                if self.game_over and self.game_host:
                     self.play_again_button.draw(self.screen)
 
             try:
@@ -309,8 +310,8 @@ class Client:
                 elif message_type == 'remove_game':
                     self.join_button_list.remove_game(data1)
 
-                elif message_type == 'game_host':
-                    game_host = True
+                elif message_type == 'self.game_host':
+                    self.game_host = True
 
                 elif message_type == 'game_over':
                     self.game_over = True
@@ -346,7 +347,7 @@ class Client:
                         self.players_lobby_display.clear()
                         self.players_lobby_display.add_players(self.name)
                         page = 'lobby'
-                        game_host = True
+                        self.game_host = True
 
                     if data1 == 'join':
                         self.players_lobby_display.clear()

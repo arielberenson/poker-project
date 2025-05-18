@@ -95,7 +95,7 @@ class Card:
     def __init__(self, suit, val):
         self.suit = suit
         self.val = val
-        self.img = 'white/white_{}_{}.svg'.format(suit.lower(), val)
+        self.img = 'images/deck/white_{}_{}.svg'.format(suit.lower(), val)
 
     def get_suit(self):
         return self.suit

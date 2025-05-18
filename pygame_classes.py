@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 pygame.init()
@@ -156,10 +158,10 @@ class CardImages:
         self.x = x
         self.y = y
         self.width = sw * 0.08
-        self.height = self.width * 19/14
+        self.height = self.width * 19 / 14
         self.cards = []
         for i in range(5):
-            image = 'backs/back04.svg'
+            image = 'images/cardback.png'
             self.cards.append(image)
 
     def update_img(self, index, img):
@@ -167,7 +169,7 @@ class CardImages:
 
     def reset(self):
         for i in range(5):
-            image = 'backs/back04.svg'
+            image = 'images/cardback.png'
             self.cards[i] = image
 
     def draw(self, screen):
@@ -177,6 +179,44 @@ class CardImages:
             scaled_image = pygame.transform.scale(image, (self.width, self.height))
             screen.blit(scaled_image, (self.x + i * (self.width + sw * 0.02), self.y))
             i += 1
+
+
+class PotDisplay:
+    def __init__(self, x, y, img='images/golden-apple.png'):
+        self.x = x
+        self.y = y
+        self.width = sw * 0.1
+        self.height = sh * 0.1
+        self.text = TextDisplay(36, (0, 0, 0), "[Pot]")
+        loaded_image = pygame.image.load(img)
+        image_size = (sw / 40, sw / 40)
+        self.img = pygame.transform.scale(loaded_image, image_size)
+        self.img_list = []
+        self.amount = 0
+        self.rect = pygame.Rect(x, y, sw*0.1, sh*0.1)
+
+    def update(self, amount):
+        self.text.update_text("POT: " + str(amount))
+        if amount == 0:
+            self.img_list = []
+            return
+        temp = abs(amount - len(self.img_list) * 10)
+        while temp >= 10:
+            temp -= 10
+            self.add_apple()
+        self.amount = amount
+
+    def add_apple(self):
+        x = sw * (random.randint(100, 200) / 1000)
+        y = sh * (random.randint(100, 200) / 1000)
+        print(x, y)
+        self.img_list.append((x, y))
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, GRAY, self.rect)
+        for (x, y) in self.img_list:
+            screen.blit(self.img, (x, y))
+        self.text.draw(screen, self.x, self.y)
 
 
 class TextDisplay:
@@ -223,14 +263,14 @@ class ChipsDisplay:
 
         # Blit the image onto the combined surface
         self.image_rect = self.image.get_rect(
-            topleft=((self.width - self.content_width)/2, (self.height - self.content_height)/2)
+            topleft=((self.width - self.content_width) / 2, (self.height - self.content_height) / 2)
         )
         self.combined_surface.blit(self.image, self.image_rect)
 
         # Blit the text onto the combined surface (next to the image)
         self.text_rect = self.text_surface.get_rect(
-            topleft=((self.width - self.content_width)/2 + self.image.get_width() + self.padding,
-                     (self.height - self.content_height)/2)
+            topleft=((self.width - self.content_width) / 2 + self.image.get_width() + self.padding,
+                     (self.height - self.content_height) / 2)
         )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
@@ -250,14 +290,14 @@ class ChipsDisplay:
 
         # Blit the image onto the combined surface
         self.image_rect = self.image.get_rect(
-            topleft=((self.width - self.content_width)/2, (self.height - self.image.get_height())/2)
+            topleft=((self.width - self.content_width) / 2, (self.height - self.image.get_height()) / 2)
         )
         self.combined_surface.blit(self.image, self.image_rect)
 
         # Blit the text onto the combined surface (next to the image)
         self.text_rect = self.text_surface.get_rect(
-            topleft=((self.width - self.content_width)/2 + self.image.get_width() + self.padding,
-                     (self.height - self.text.get_surface().get_height())/2)
+            topleft=((self.width - self.content_width) / 2 + self.image.get_width() + self.padding,
+                     (self.height - self.text.get_surface().get_height()) / 2)
         )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
@@ -274,9 +314,9 @@ class PlayerDisplay:
         self.padding = padding
         self.chips = chips
         self.text = text
-        self.image = pygame.image.load('backs/back04.svg')
+        self.image = pygame.image.load('images/cardsback.png')
         self.image_width = sw * 0.06
-        self.image_height = self.image_width * 219/185
+        self.image_height = self.image_width * 219 / 185
         self.image = pygame.transform.scale(self.image, (self.image_width, self.image_height))
 
         self.text_surface = font.render(self.text, True, WHITE)
@@ -299,8 +339,9 @@ class PlayerDisplay:
         # Position the image
         self.image_rect = self.image.get_rect(
             topleft=(
-                (self.width - self.content_width)/2 + max(self.chips_surface.get_width(), self.text_surface.get_width()) + 10,
-                (self.height - self.content_height)/2
+                (self.width - self.content_width) / 2 + max(self.chips_surface.get_width(),
+                                                            self.text_surface.get_width()) + 10,
+                (self.height - self.content_height) / 2
             )
         )
         self.combined_surface.blit(self.image, self.image_rect)
@@ -308,15 +349,15 @@ class PlayerDisplay:
         # Position the chips display below the text
         self.chips_rect = self.chips_surface.get_rect(
             topleft=(
-                (self.width - self.content_width)/2,
-                (self.height - self.content_height)/2 + int(self.text_surface.get_height()) + self.padding
+                (self.width - self.content_width) / 2,
+                (self.height - self.content_height) / 2 + int(self.text_surface.get_height()) + self.padding
             )
         )
         self.combined_surface.blit(self.chips_surface, self.chips_rect)
 
         # Position the text
         self.text_rect = self.text_surface.get_rect(
-            topleft=((self.width - self.content_width)/2, (self.height - self.content_height)/2)
+            topleft=((self.width - self.content_width) / 2, (self.height - self.content_height) / 2)
         )
         self.combined_surface.blit(self.text_surface, self.text_rect)
 
@@ -329,7 +370,7 @@ class PlayerDisplay:
         self.chips_surface = self.chips_path.get_surface()
 
         self.combined_surface = pygame.Surface((self.width, self.height))
-        self.combined_surface.fill((46, 77, 62)) # RGB for dark green
+        self.combined_surface.fill((46, 77, 62))  # RGB for dark green
 
         self.combined_surface.blit(self.image, self.image_rect)
         self.combined_surface.blit(self.chips_surface, self.chips_rect)
@@ -438,7 +479,7 @@ class SelfDisplay:
         self.image1 = pygame.image.load(img1)
         self.image2 = pygame.image.load(img2)
         image_width = sw * 0.09
-        image_height = image_width * 19/14
+        image_height = image_width * 19 / 14
         self.image1 = pygame.transform.scale(self.image1, (image_width, image_height))
         self.image2 = pygame.transform.scale(self.image2, (image_width, image_height))
 
@@ -525,10 +566,10 @@ class PlayersDisplay:
     def draw(self, screen):
         if len(self.players) == 1:
             for element in self.players:
-                element.draw(screen, sw * 0.45, sh * 0.05)
+                element.draw(screen, sw * 0.1, sh * 0.6)
         elif len(self.players) == 2:
-            self.players[0].draw(screen, sw * 0.2, sh * 0.05)
-            self.players[1].draw(screen, sw * 0.6, sh * 0.05)
+            self.players[0].draw(screen, sw * 0.1, sh * 0.6)
+            self.players[1].draw(screen, sw * 0.6, sh * 0.6)
 
     def get_player(self, i):
         return self.players[i]
@@ -586,7 +627,3 @@ class PlayersLobbyDisplay:
         for player in self.players:
             player[0].draw(screen, int(sw * 0.2), int(sh * 0.1 * i))
             i += 1
-
-
-
-
