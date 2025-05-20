@@ -379,7 +379,7 @@ class PlayerDisplay:
 
 class Slider:
     def __init__(self, x, y, width, min_value, max_value, initial_value,
-                 height=10, knob_radius=8, slider_color=(180, 180, 180),
+                 height=10, knob_radius=12, slider_color=(180, 180, 180),
                  knob_color=(100, 100, 255), font=None, font_color=(255, 255, 255)):
         self.x = float(x)
         self.y = float(y)
@@ -592,7 +592,7 @@ class GamesDisplay:
                 self.games.remove(game)
 
     def draw(self, screen):
-        i = 1
+        i = 2
         for game in self.games:
             game[0].draw(screen, int(sw * 0.2), int(sh * 0.13 * i))
             i += 1

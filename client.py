@@ -24,6 +24,7 @@ class Client:
         self.cards = None
         self.game_host = False
         self.all_in = False
+        self.me_display = None
         # log in / sign up
         self.log_in_button = Button(sw * 0.25, sh * 0.3, "Log in", sw * 0.55, sh * 0.3)
         self.sign_up_button = Button(sw * 0.25, sh * 0.3, "Sign Up", sw * 0.2, sh * 0.3)
@@ -47,15 +48,15 @@ class Client:
         self.fold_button = Button(100, 50, "Fold", sw * 0.55, sh * 0.875)
 
         # game - raise
-        self.slider = Slider(sw * 0.65, sh * 0.875, 100, 5, 100, 50)
-        self.confirm_button = Button(50, 50, "OK", sw * 0.75, sh * 0.875, )
+        self.slider = Slider(sw * 0.65, sh * 0.875, sw*0.27, 5, 100, 50)
+        self.confirm_button = Button(50, 50, "OK", sw * 0.93, sh * 0.875, )
 
         # game
-        self.chips_display = ChipsDisplay(sw * 0.2, sh * 0.1, "1000")
+        self.chips_display = ChipsDisplay(sw * 0.2, sh * 0.1, "333")
         self.leave_game_button = Button(100, 50, "Leave", sw * 0.7, sh * 0.1)
         self.play_again_button = Button(400, 400, "Play Again?", sw * 0.3, sh * 0.3)
 
-        self.pot_img_display = PotDisplay(sw*0.1, sh*0.1)
+        self.pot_img_display = PotDisplay(sw * 0.1, sh * 0.1)
         self.players_display = PlayersDisplay()
 
         # Initialize community cards
@@ -226,7 +227,7 @@ class Client:
                     self.check_call_button.draw(self.screen)
                     self.raise_button.draw(self.screen)
                     self.fold_button.draw(self.screen)
-                    self.slider.set_max_value(min(self.pot*2 - self.player_round_bet, self.chips))
+                    self.slider.set_max_value(min(self.pot * 2 - self.player_round_bet, self.chips))
                     if self.highest_round_bet == 0:
                         self.slider.set_min_value(5)
                     else:
@@ -339,7 +340,7 @@ class Client:
                     self.chips = message_data['data2']
                     self.cards = [Card(card_data['suit'], card_data['val']) for card_data in cards_data]
                     print("CARDS", self.cards)
-                    self.me_display = SelfDisplay(sw * 0.45, sh * 0.45, self.name,
+                    self.me_display = SelfDisplay(sw * 0.41, sh * 0.45, self.name,
                                                   self.cards[0].get_img(), self.cards[1].get_img(), str(self.chips))
 
                 elif message_type == 'approve':

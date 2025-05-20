@@ -20,7 +20,7 @@ class Server:
         # data_thread.start()
 
     def create_game(self, user):
-        p = Player(user, user.get_username(), 1000)
+        p = Player(user, user.get_username(), user.get_chips())
         game_id = f"game_{self.game_counter}"  # Generate game ID like 'game_1', 'game_2', etc.
         server_to_game_queue = queue.Queue()
         game_to_server_queue = queue.Queue()
@@ -77,7 +77,7 @@ class Server:
                                 message = create_message('reject', 'join', '')
                                 user.get_socket().sendall(message.encode('utf-8'))
                             else:
-                                p = Player(user, user.get_username(), 1000)
+                                p = Player(user, user.get_username(), user.get_chips())
                                 if current_game.is_game_started():
                                     current_game.add_pending_players(p)
                                 else:
