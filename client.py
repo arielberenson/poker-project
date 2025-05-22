@@ -54,10 +54,11 @@ class Client:
         # game
         self.chips_display = ChipsDisplay(sw * 0.2, sh * 0.1, "333")
         self.leave_game_button = Button(100, 50, "Leave", sw * 0.7, sh * 0.1)
-        self.play_again_button = Button(400, 400, "Play Again?", sw * 0.3, sh * 0.3)
+        self.play_again_button = Button(100, 50, "Play Again?", sw * 0.5, sh * 0.5)
 
         self.pot_img_display = PotDisplay(sw * 0.1, sh * 0.1)
         self.players_display = PlayersDisplay()
+        self.showdown_info = ShowdownInfoDisplay()
 
         # Initialize community cards
         self.community_cards = CardImages(sw * 0.29, sh * 0.2)
@@ -223,27 +224,29 @@ class Client:
                 self.fold_button.reset_after_click()
 
                 # Draw buttons and game objects
-                if not buttons_hide:
-                    self.check_call_button.draw(self.screen)
-                    self.raise_button.draw(self.screen)
-                    self.fold_button.draw(self.screen)
-                    self.slider.set_max_value(min(self.pot * 2 - self.player_round_bet, self.chips))
-                    if self.highest_round_bet == 0:
-                        self.slider.set_min_value(5)
-                    else:
-                        self.slider.set_min_value(self.highest_round_bet)
-                if not raise_buttons_hide:
-                    self.confirm_button.draw(self.screen)
-                    self.slider.draw(self.screen)
-                self.community_cards.draw(self.screen)
-                self.pot_img_display.draw(self.screen)
-                self.players_display.draw(self.screen)
-                if self.cards:
-                    self.me_display.draw(self.screen)
-                self.pot_img_display.update(self.pot)
-
-                if self.game_over and self.game_host:
-                    self.play_again_button.draw(self.screen)
+                if not self.game_over:
+                    if not buttons_hide:
+                        self.check_call_button.draw(self.screen)
+                        self.raise_button.draw(self.screen)
+                        self.fold_button.draw(self.screen)
+                        self.slider.set_max_value(min(self.pot * 2 - self.player_round_bet, self.chips))
+                        if self.highest_round_bet == 0:
+                            self.slider.set_min_value(5)
+                        else:
+                            self.slider.set_min_value(self.highest_round_bet)
+                    if not raise_buttons_hide:
+                        self.confirm_button.draw(self.screen)
+                        self.slider.draw(self.screen)
+                    self.community_cards.draw(self.screen)
+                    self.pot_img_display.draw(self.screen)
+                    self.players_display.draw(self.screen)
+                    if self.cards:
+                        self.me_display.draw(self.screen)
+                    self.pot_img_display.update(self.pot)
+                else:
+                    self.showdown_info.draw(self.screen)
+                    if self.game_host:
+                        self.play_again_button.draw(self.screen)
 
             try:
                 message = message_queue.get_nowait()  # Non-blocking get from the queue
@@ -316,7 +319,12 @@ class Client:
 
                 elif message_type == 'game_over':
                     self.game_over = True
-
+                    data = []
+                    for player in data2:
+                        cards_data = player[1]
+                        cards = [Card(card_data['suit'], card_data['val']) for card_data in cards_data]
+                        data.append((player[0], cards))
+                    self.showdown_info.update(data1, data)
                 elif message_type == 'player_moved':
                     if data1 and data2:
                         move, val = data2
@@ -406,6 +414,7 @@ class Client:
         self.players_data = None
         self.players_display.reset()
         self.community_cards.reset()
+        self.showdown_info.reset()
         self.game_over = False
         self.pot = 0
 

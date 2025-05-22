@@ -16,8 +16,8 @@ class Game:
         self.pending_players = []
         self.id = game_id
         self.players = players
-        self.current = players[0]
         self.big = players[0]
+        self.current = self.big
         self.last_bet = 0
         self.turn_counter = 0
         self.max_turns = len(self.players)
@@ -42,7 +42,8 @@ class Game:
             for player in self.pending_players:
                 self.players.append(player)
             self.pending_players = []
-        self.current = self.players[0]
+        self.big = self.players[0]
+        self.current = self.big
         self.pot.clear_pot()
         self.deck.new_deck()
         self.deck.shuffle()
@@ -68,7 +69,9 @@ class Game:
         self.last_bet = 0
         self.turn_counter = 0
         self.max_turns = len(self.players)
-        self.current = self.players[0]
+        self.current = self.big
+        while self.players[0] != self.big:
+            self.players.append(self.players.pop(0))
 
     def create_game(self):
         self.process_data_thread.start()
@@ -101,6 +104,7 @@ class Game:
 
                 round = 0
                 while round < 4 and still_playing and not self.terminate:
+                    # still playing: if everyone folded, terminate: if everyone left the game
                     round += 1
                     print(round)
                     self.new_round()
@@ -124,7 +128,7 @@ class Game:
                         cards_dict = [card.to_dict() for card in c]
                         message = create_message('round', round, cards_dict)
                         send_to_all(self.players, message)
-                    while self.turn_counter < self.max_turns and not self.terminate:
+                    while self.turn_counter < self.max_turns and not self.terminate and still_playing:
                         print(self.current.get_username())
                         try:
                             user = self.current.get_user()
@@ -142,12 +146,21 @@ class Game:
                             message = create_message('player_moved', self.current.get_username(), player_moved)
                             send_to_all(self.players, message)
 
+                self.new_round()
                 print("game over")
                 winner = compute_winner(self.players, self.community_cards)
                 print(winner[0].get_username())
                 winner[0].add_chips(self.pot.get_chips())
-                message = create_message('game_over', '', '')
+
+                players_data = []
+                for player in self.players:
+                    cards_dict = [card.to_dict() for card in player.get_cards()]
+                    data = (player.get_username(), cards_dict)
+                    players_data.append(data)
+
+                message = create_message('game_over', winner[0].get_name(), players_data)
                 send_to_all(self.players, message)
+
                 for player in self.players:
                     print("before update chips")
                     update_chips(player.get_username(), player.get_chips())

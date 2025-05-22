@@ -154,13 +154,15 @@ class TextInput:
 
 
 class CardImages:
-    def __init__(self, x, y):
+    def __init__(self, x, y, num=5):
         self.x = x
         self.y = y
         self.width = sw * 0.08
         self.height = self.width * 19 / 14
         self.cards = []
-        for i in range(5):
+        self.num = num
+
+        for i in range(num):
             image = 'images/cardback.png'
             self.cards.append(image)
 
@@ -168,7 +170,7 @@ class CardImages:
         self.cards[index] = img
 
     def reset(self):
-        for i in range(5):
+        for i in range(self.num):
             image = 'images/cardback.png'
             self.cards[i] = image
 
@@ -576,6 +578,45 @@ class PlayersDisplay:
 
     def reset(self):
         self.players = []
+
+
+class ShowdownInfoDisplay:
+    def __init__(self):
+        self.data = []
+        self.surfaces = []
+        self.winner = None
+        self.winner_surface = TextDisplay(50, (255, 0, 0))
+
+    def update(self, winner, data):
+        self.data = data
+        self.winner = winner
+        self.winner_surface.update_text(str(winner) + " won!")
+        i = 0
+        for player in data:
+            text = str(player[0])
+            image1 = player[1][0].get_img()
+            image2 = player[1][1].get_img()
+            text_surface = TextDisplay()
+            text_surface.update_text(str(text) + "'s cards: ")
+            image_surface = CardImages(sw*0.17, sh*0.3 + i * sh * 0.2, 2)
+            image_surface.update_img(0, image1)
+            image_surface.update_img(1, image2)
+            self.surfaces.append((text_surface, image_surface))
+            i += 1
+
+    def reset(self):
+        self.data = []
+        self.surfaces = []
+        self.winner = None
+        self.winner_surface = TextDisplay(50, (255, 0, 0))
+
+    def draw(self, screen):
+        i = 0
+        self.winner_surface.draw(screen, sw * 0.6, sh * 0.3)
+        for line in self.surfaces:
+            line[0].draw(screen, sw * 0.05, sh * 0.3 + i * sh * 0.2)
+            line[1].draw(screen)
+            i += 1
 
 
 class GamesDisplay:
