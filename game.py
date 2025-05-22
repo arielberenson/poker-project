@@ -148,9 +148,12 @@ class Game:
 
                 self.new_round()
                 print("game over")
-                winner = compute_winner(self.players, self.community_cards)
-                print(winner[0].get_username())
-                winner[0].add_chips(self.pot.get_chips())
+                winners = compute_winner(self.players, self.community_cards)
+                winners_names = []
+                for player in winners:
+                    player.add_chips(int(self.pot.get_chips()/len(winners)))
+                    winners_names.append(player.get_name())
+                print(winners[0].get_username())
 
                 players_data = []
                 for player in self.players:
@@ -158,7 +161,7 @@ class Game:
                     data = (player.get_username(), cards_dict)
                     players_data.append(data)
 
-                message = create_message('game_over', winner[0].get_name(), players_data)
+                message = create_message('game_over', winners_names, players_data)
                 send_to_all(self.players, message)
 
                 for player in self.players:

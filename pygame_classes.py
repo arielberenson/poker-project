@@ -584,13 +584,17 @@ class ShowdownInfoDisplay:
     def __init__(self):
         self.data = []
         self.surfaces = []
-        self.winner = None
+        self.winners = []
         self.winner_surface = TextDisplay(50, (255, 0, 0))
 
-    def update(self, winner, data):
+    def update(self, winners, data):
         self.data = data
-        self.winner = winner
-        self.winner_surface.update_text(str(winner) + " won!")
+        self.winners = winners
+        text = ""
+        for player in winners:
+            text += str(player) + " and "
+        text = text[:-5] + " WON!"
+        self.winner_surface.update_text(text)
         i = 0
         for player in data:
             text = str(player[0])
