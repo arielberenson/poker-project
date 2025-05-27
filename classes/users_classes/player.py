@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, user, username, chips, spectating=False):
+    def __init__(self, user, username, chips, spectating=False, allin=False):
         self.user = user
         self.cards = []
         self.username = username
@@ -7,6 +7,13 @@ class Player:
         self.round_bet = 0
         self.active = False
         self.spectating = spectating
+        self.allin = allin
+
+    def is_allin(self):
+        return self.allin
+
+    def set_allin(self, allin):
+        self.allin = allin
 
     def remove_chips(self, n):
         self.chips -= int(n)

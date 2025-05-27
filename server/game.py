@@ -1,5 +1,12 @@
 import queue
 import threading
+import socket
+import select
+
+from classes.game_classes.deck import *
+from classes.game_classes.pot import *
+from classes.users_classes.user import *
+from classes.users_classes.player import *
 
 from extra_functions import *
 from compute_winner import compute_winner
@@ -24,7 +31,8 @@ class Game:
         self.game_queue = queue.Queue()
         self.process_data_thread = threading.Thread(target=self.process_data, daemon=True)
         self.run_game_thread = threading.Thread(target=self.start_game, daemon=True)
-        self.pot = Pot()
+        self.pots = PotList()
+        self.history = []
         self.game_started = False
         self.terminate = False
 
@@ -39,7 +47,7 @@ class Game:
             self.pending_players = []
         self.big = self.players[0]
         self.current = self.big
-        self.pot.clear_pot()
+        self.pots.clear_all()
         self.deck.new_deck()
         self.deck.shuffle()
         self.community_cards.clear()
@@ -146,7 +154,7 @@ class Game:
                 winners = compute_winner(self.players, self.community_cards)
                 winners_names = []
                 for player in winners:
-                    player.add_chips(int(self.pot.get_chips()/len(winners)))
+                    player.add_chips(int(self.pots.get_chips()/len(winners)))
                     winners_names.append(player.get_name())
                 print(winners[0].get_username())
 
@@ -213,14 +221,14 @@ class Game:
                         message = create_message('player chips', self.current.get_name(),
                                                  self.current.get_chips())
                         send_to_all(self.players, message)
-                        message = create_message('pot', self.pot.get_chips(), '')
+                        message = create_message('pot', self.pots.get_chips(), '')
                         send_to_all(self.players, message)
                     elif data1 == 'raise':
                         self.place_bet(data2)
                         message = create_message('player chips', self.current.get_name(),
                                                  self.current.get_chips())
                         send_to_all(self.players, message)
-                        message = create_message('pot', self.pot.get_chips(), '')
+                        message = create_message('pot', self.pots.get_chips(), '')
                         send_to_all(self.players, message)
                         self.player_raised()
                     elif data1 == 'fold':
@@ -245,9 +253,15 @@ class Game:
         self.turn_counter += 1
 
     def place_bet(self, n):
-        print("HOW MUCH LESS?", n, self.current.get_round_bet())
-        self.current.remove_chips(n - self.current.get_round_bet())
-        self.pot.add_chips(n)
+        if (n - self.current.get_round_bet()) > self.current.get_chips():
+            self.current.remove_chips(self.current.get_chips())
+            self.pots.side_pot(self.current, n)
+            message = create_message('new_pot', n, '')
+            send_to_all(self.players, message)
+            self.current.set_allin(True)
+        else:
+            self.current.remove_chips(n - self.current.get_round_bet())
+            self.pots.add_chips(n)
         if self.last_bet < n:
             self.last_bet = n
 

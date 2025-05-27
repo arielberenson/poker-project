@@ -184,41 +184,27 @@ class CardImages:
 
 
 class PotDisplay:
-    def __init__(self, x, y, img='images/golden-apple.png'):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
         self.width = sw * 0.1
         self.height = sh * 0.1
-        self.text = TextDisplay(36, (0, 0, 0), "[Pot]")
-        loaded_image = pygame.image.load(img)
-        image_size = (sw / 40, sw / 40)
-        self.img = pygame.transform.scale(loaded_image, image_size)
-        self.img_list = []
-        self.amount = 0
+        self.text_list = [TextDisplay(36, (0, 0, 0), "[Pot]")]
         self.rect = pygame.Rect(x, y, sw*0.1, sh*0.1)
 
-    def update(self, amount):
-        self.text.update_text("POT: " + str(amount))
-        if amount == 0:
-            self.img_list = []
-            return
-        temp = abs(amount - len(self.img_list) * 10)
-        while temp >= 10:
-            temp -= 10
-            self.add_apple()
-        self.amount = amount
+    def update_text(self, amount, i=0):
+        self.text_list[i].update_text("POT: " + str(amount))
 
-    def add_apple(self):
-        x = sw * (random.randint(100, 200) / 1000)
-        y = sh * (random.randint(100, 200) / 1000)
-        print(x, y)
-        self.img_list.append((x, y))
+    def add_pot(self, amount):
+        self.text_list.append(TextDisplay(36, (0, 0, 0), "[Pot]"))
+        self.text_list[-1].update_text("POT: " + str(amount))
 
     def draw(self, screen):
         pygame.draw.rect(screen, GRAY, self.rect)
-        for (x, y) in self.img_list:
-            screen.blit(self.img, (x, y))
-        self.text.draw(screen, self.x, self.y)
+        i = 0
+        for text in self.text_list:
+            text.draw(screen, self.x, self.y + i*0.05*sh)
+            i += 1
 
 
 class TextDisplay:

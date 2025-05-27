@@ -1,6 +1,6 @@
 import threading
 import socket
-from poker_classes import Card
+from classes.game_classes.deck import Card
 from classes.pygame_classes import *
 from extra_functions import *
 import select
@@ -14,7 +14,7 @@ class Client:
         self.whose_turn = None
         self.me_display = None
         self.running = True
-        self.pot = None
+        self.pots = [0]
         self.game_over = None
         self.players_data = None
         self.highest_round_bet = 0
@@ -29,8 +29,14 @@ class Client:
         self.log_in_button = Button(sw * 0.25, sh * 0.3, "Log in", sw * 0.55, sh * 0.3)
         self.sign_up_button = Button(sw * 0.25, sh * 0.3, "Sign Up", sw * 0.2, sh * 0.3)
 
-        self.sign_up_username = TextInput(sw * 0.3, sh * 0.4, sw * 0.4, sh * 0.15)
-        self.sign_up_password = TextInput(sw * 0.3, sh * 0.6, sw * 0.4, sh * 0.15)
+        self.restart_button = Button(100, 50, "Back", sw * 0.7, sh * 0.1)
+        self.username_input = TextInput(sw * 0.3, sh * 0.35, sw * 0.4, sh * 0.13)
+        self.password_input = TextInput(sw * 0.3, sh * 0.55, sw * 0.4, sh * 0.13)
+        self.username_text = TextDisplay()
+        self.password_text = TextDisplay()
+        self.username_text.update_text("Username: ")
+        self.password_text.update_text("Password: ")
+        self.error_message = TextDisplay()
         self.submit_sign_up_button = Button(sw * 0.15, sh * 0.15, "Submit", sw * 0.4, sh * 0.8)
 
         # home page
@@ -56,7 +62,7 @@ class Client:
         self.leave_game_button = Button(100, 50, "Leave", sw * 0.7, sh * 0.1)
         self.play_again_button = Button(100, 50, "Play Again?", sw * 0.5, sh * 0.5)
 
-        self.pot_img_display = PotDisplay(sw * 0.1, sh * 0.1)
+        self.pots_display = PotDisplay(sw * 0.1, sh * 0.1)
         self.players_display = PlayersDisplay()
         self.showdown_info = ShowdownInfoDisplay()
 
@@ -99,36 +105,46 @@ class Client:
                         self.running = False
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.submit_sign_up_button.check_click(event.pos):
-                            if self.sign_up_username.get_text() and self.sign_up_password.get_text():
-                                username = self.sign_up_username.get_text()
-                                password = self.sign_up_password.get_text()
+                            if self.username_input.get_text() and self.password_input.get_text():
+                                username = self.username_input.get_text()
+                                password = self.password_input.get_text()
                                 message = create_message('sign_up', username, password)
                                 self.my_socket.sendall(message.encode('utf-8'))
-                                self.sign_up_password.set_text('')
-                                self.sign_up_username.set_text('')
-                    self.sign_up_password.handle_event(event)
-                    self.sign_up_username.handle_event(event)
+                                self.password_input.set_text('')
+                                self.username_input.set_text('')
+                        if self.restart_button.check_click(event.pos):
+                            page = 'start'
+                    self.password_input.handle_event(event)
+                    self.username_input.handle_event(event)
                 self.submit_sign_up_button.draw(self.screen)
-                self.sign_up_password.draw(self.screen)
-                self.sign_up_username.draw(self.screen)
+                self.password_input.draw(self.screen)
+                self.username_input.draw(self.screen)
+                self.username_text.draw(self.screen, sw*0.3, sh*0.3)
+                self.password_text.draw(self.screen, sw*0.3, sh*0.5)
+                self.restart_button.draw(self.screen)
             if page == 'log in':
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.submit_sign_up_button.check_click(event.pos):
-                            if self.sign_up_username.get_text() and self.sign_up_password.get_text():
-                                username = self.sign_up_username.get_text()
-                                password = self.sign_up_password.get_text()
+                            if self.username_input.get_text() and self.password_input.get_text():
+                                username = self.username_input.get_text()
+                                password = self.password_input.get_text()
                                 message = create_message('log_in', username, password)
                                 self.my_socket.sendall(message.encode('utf-8'))
-                                self.sign_up_password.set_text('')
-                                self.sign_up_username.set_text('')
-                    self.sign_up_password.handle_event(event)
-                    self.sign_up_username.handle_event(event)
+                                self.password_input.set_text('')
+                                self.username_input.set_text('')
+                        if self.restart_button.check_click(event.pos):
+                            page = 'start'
+                    self.password_input.handle_event(event)
+                    self.username_input.handle_event(event)
                 self.submit_sign_up_button.draw(self.screen)
-                self.sign_up_password.draw(self.screen)
-                self.sign_up_username.draw(self.screen)
+                self.password_input.draw(self.screen)
+                self.username_input.draw(self.screen)
+                self.username_text.draw(self.screen, sw*0.3, sh*0.3)
+                self.password_text.draw(self.screen, sw*0.3, sh*0.5)
+                self.restart_button.draw(self.screen)
             if page == 'main':
                 self.game_host = False
                 for event in pygame.event.get():
@@ -229,7 +245,7 @@ class Client:
                         self.check_call_button.draw(self.screen)
                         self.raise_button.draw(self.screen)
                         self.fold_button.draw(self.screen)
-                        self.slider.set_max_value(min(self.pot * 2 - self.player_round_bet, self.chips))
+                        self.slider.set_max_value(min(self.pots[0] * 2 - self.player_round_bet, self.chips))
                         if self.highest_round_bet == 0:
                             self.slider.set_min_value(5)
                         else:
@@ -238,11 +254,11 @@ class Client:
                         self.confirm_button.draw(self.screen)
                         self.slider.draw(self.screen)
                     self.community_cards.draw(self.screen)
-                    self.pot_img_display.draw(self.screen)
+                    self.pots_display.draw(self.screen)
                     self.players_display.draw(self.screen)
                     if self.cards:
                         self.me_display.draw(self.screen)
-                    self.pot_img_display.update(self.pot)
+                    self.pots_display.update_text(self.pots[0])
                 else:
                     self.showdown_info.draw(self.screen)
                     if self.game_host:
@@ -294,7 +310,11 @@ class Client:
 
                 elif message_type == 'pot':
                     if data1:
-                        self.pot = data1
+                        self.pots[0] = data1
+
+                elif message_type == 'new_pot':
+                    self.pots.append(data1)
+                    self.pots_display.add_pot(data1)
 
                 elif message_type == 'player chips':
                     if data1 == self.name:
@@ -325,6 +345,7 @@ class Client:
                         cards = [Card(card_data['suit'], card_data['val']) for card_data in cards_data]
                         data.append((player[0], cards))
                     self.showdown_info.update(data1, data)
+
                 elif message_type == 'player_moved':
                     if data1 and data2:
                         move, val = data2
@@ -343,7 +364,6 @@ class Client:
                         self.players_display.add_players(self.players_data[1:])
 
                 elif message_type == 'player_cards':
-                    print("accsesd")
                     cards_data = message_data['data1']
                     self.chips = message_data['data2']
                     self.cards = [Card(card_data['suit'], card_data['val']) for card_data in cards_data]
@@ -373,10 +393,16 @@ class Client:
                         self.name = data2[0]
                         self.chips = data2[1]
 
-                    if data1 == 'log in':
+                    if data1 == 'log_in':
                         page = 'main'
                         self.name = data2[0]
                         self.chips = data2[1]
+
+                elif message_type == 'reject':
+                    if data1 == 'log_in':
+                        self.error_message.update_text("Error logging in. Check your username and password")
+                    if data1 == 'sign_up':
+                        self.error_message.update_text("Error signing up. Username might already exist.")
 
                 elif message_type == 'new_game':
                     self.join_button_list.add_game(data1, data2)

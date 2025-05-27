@@ -1,5 +1,5 @@
 from database.firebase import add_to_db, check_username, check_user_credentials, fetch_data
-from game import *
+from server.game import *
 
 
 class Server:
@@ -102,7 +102,7 @@ class Server:
                                     user.get_socket().sendall(message.encode('utf-8'))
                                 message = create_message('approve', 'user', (data1, user.get_chips()))
                             else:
-                                message = create_message('reject', 'user', '')
+                                message = create_message('reject', 'sign_up', '')
                             user.get_socket().sendall(message.encode('utf-8'))
                         elif message_type == 'log_in':
                             if check_user_credentials(data1, data2) and self.check_username(data1):
@@ -110,9 +110,9 @@ class Server:
                                 for game_id, game_data in self.games.items():
                                     message = create_message('new_game', game_data[3], game_id)
                                     user.get_socket().sendall(message.encode('utf-8'))
-                                message = create_message('approve', 'log in', (data1, user.get_chips()))
+                                message = create_message('approve', 'log_in', (data1, user.get_chips()))
                             else:
-                                message = create_message('reject', 'log in', data1)
+                                message = create_message('reject', 'log_in', data1)
                             user.get_socket().sendall(message.encode('utf-8'))
                         else:
                             print(self.games)
