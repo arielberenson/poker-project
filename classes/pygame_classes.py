@@ -316,7 +316,7 @@ class PlayerDisplay:
         self.padding = padding
         self.chips = chips
         self.text = text
-        self.image = pygame.image.load('images/cardsback.png')
+        self.image = pygame.image.load('../images/cardsback.png')
         self.image_width = sw * 0.06
         self.image_height = self.image_width * 219 / 185
         self.image = pygame.transform.scale(self.image, (self.image_width, self.image_height))

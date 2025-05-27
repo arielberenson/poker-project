@@ -1,7 +1,7 @@
 import threading
 import socket
 from poker_classes import Card
-from pygame_classes import *
+from classes.pygame_classes import *
 from extra_functions import *
 import select
 import queue

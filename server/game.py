@@ -1,14 +1,9 @@
 import queue
 import threading
-import select
-import socket
-import time
-import json
 
 from extra_functions import *
 from compute_winner import compute_winner
-from firebase import update_chips
-from poker_classes import *
+from database.firebase import update_chips
 
 
 class Game:
@@ -250,7 +245,6 @@ class Game:
         self.turn_counter += 1
 
     def place_bet(self, n):
-        print()
         print("HOW MUCH LESS?", n, self.current.get_round_bet())
         self.current.remove_chips(n - self.current.get_round_bet())
         self.pot.add_chips(n)

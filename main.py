@@ -1,5 +1,5 @@
-from firebase import initialize_firebase
-from server import *
+from database.firebase import initialize_firebase
+from server.server import *
 
 if __name__ == "__main__":
     initialize_firebase()
