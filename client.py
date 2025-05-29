@@ -10,6 +10,7 @@ import queue
 class Client:
     def __init__(self):
         # misc
+        self.pressure = False
         self.chips = None
         self.whose_turn = None
         self.me_display = None
@@ -85,7 +86,7 @@ class Client:
         print("GAME STARTED")
         buttons_hide = True
         raise_buttons_hide = True
-        pressure = False
+        self.pressure = False
         while self.running:
             self.screen.fill((53, 101, 77))
             if page == 'start':
@@ -184,8 +185,13 @@ class Client:
                     self.start_button.draw(self.screen)
                 mouse_pos = pygame.mouse.get_pos()
             if page == 'game':
-                if pressure:
-                    self.check_call_button.update_text(f"Call [{self.highest_round_bet - self.player_round_bet}]")
+                if self.pressure:
+                    if self.highest_round_bet - self.player_round_bet > self.chips:
+                        self.check_call_button.update_text(f"Call [{self.chips}]")
+                    else:
+                        self.check_call_button.update_text(f"Call [{self.highest_round_bet - self.player_round_bet}]")
+                    print("Highest: ", self.highest_round_bet)
+                    print("Self: ", self.player_round_bet)
                 else:
                     self.check_call_button.update_text("Check")
                 # Handle events and update game screen
@@ -194,7 +200,7 @@ class Client:
                         self.running = False
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.check_call_button.check_click(event.pos):
-                            if pressure:
+                            if self.pressure:
                                 message = create_message('player_move', 'call', '')
                                 self.my_socket.sendall(message.encode('utf-8'))
                                 buttons_hide = True
@@ -254,11 +260,10 @@ class Client:
                         self.confirm_button.draw(self.screen)
                         self.slider.draw(self.screen)
                     self.community_cards.draw(self.screen)
-                    self.pots_display.draw(self.screen)
+                    self.pots_display.draw(self.screen, self.pots)
                     self.players_display.draw(self.screen)
                     if self.cards:
                         self.me_display.draw(self.screen)
-                    self.pots_display.update_text(self.pots[0])
                 else:
                     self.showdown_info.draw(self.screen)
                     if self.game_host:
@@ -282,10 +287,10 @@ class Client:
                         print("It's your turn!")
                         buttons_hide = False  # Enable button when it's the player's turn
                         self.highest_round_bet = data2
-                        if self.highest_round_bet > 0:
-                            pressure = True
+                        if self.highest_round_bet - self.player_round_bet > 0:
+                            self.pressure = True
                         else:
-                            pressure = False
+                            self.pressure = False
 
                     self.whose_turn = data1
 
@@ -310,11 +315,12 @@ class Client:
 
                 elif message_type == 'pot':
                     if data1:
-                        self.pots[0] = data1
+                        self.pots[-1] = data1
 
                 elif message_type == 'new_pot':
-                    self.pots.append(data1)
-                    self.pots_display.add_pot(data1)
+                    self.pots[-1] = data1
+                    self.pots.append(data2)
+                    self.pots_display.add_pot(data2)
 
                 elif message_type == 'player chips':
                     if data1 == self.name:
@@ -361,6 +367,7 @@ class Client:
                         print(self_index)
                         self.players_data = players_data[self_index:]
                         self.players_data += players_data[0:self_index]
+                        print(self.players_data[1:])
                         self.players_display.add_players(self.players_data[1:])
 
                 elif message_type == 'player_cards':
@@ -442,7 +449,10 @@ class Client:
         self.community_cards.reset()
         self.showdown_info.reset()
         self.game_over = False
-        self.pot = 0
+        self.pressure = False
+        self.pots = [0]
+        self.highest_round_bet = 0
+        self.player_round_bet = 0
 
 
 sw, sh = get_screen_info()

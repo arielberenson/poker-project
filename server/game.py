@@ -71,10 +71,10 @@ class Game:
             player.new_round()
         self.last_bet = 0
         self.turn_counter = 0
-        self.max_turns = len(self.players)
         self.current = self.big
         while self.players[0] != self.big:
             self.players.append(self.players.pop(0))
+        self.max_turns = len(self.players)
 
     def create_game(self):
         self.process_data_thread.start()
@@ -248,20 +248,23 @@ class Game:
         self.max_turns += self.turn_counter
 
     def next_player(self):
-        self.players.append(self.players.pop(0))  # Move the first player to the end of the list
-        self.current = self.players[0]
+        first = True
+        while self.current.is_allin() or first:
+            self.players.append(self.players.pop(0))  # Move the first player to the end of the list
+            self.current = self.players[0]
+            first = False
         self.turn_counter += 1
 
     def place_bet(self, n):
-        if (n - self.current.get_round_bet()) > self.current.get_chips():
+        if n >= self.current.get_chips():
+            old, new = self.pots.side_pot(self.current, self.current.get_chips(), n)
             self.current.remove_chips(self.current.get_chips())
-            self.pots.side_pot(self.current, n)
-            message = create_message('new_pot', n, '')
+            message = create_message('new_pot', old.get_chips(), new.get_chips())
             send_to_all(self.players, message)
             self.current.set_allin(True)
         else:
-            self.current.remove_chips(n - self.current.get_round_bet())
-            self.pots.add_chips(n)
+            self.current.remove_chips(n)
+            self.pots.add_action(self.current, n)
         if self.last_bet < n:
             self.last_bet = n
 

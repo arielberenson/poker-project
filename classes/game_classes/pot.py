@@ -27,7 +27,7 @@ class PotList:
     def __init__(self):
         self.pots = [Pot()]
 
-    def add_chips(self, n, i=0):
+    def add_chips(self, n, i=-1):
         self.pots[i].add_chips(n)
 
     def clear_pot(self, i):
@@ -40,21 +40,23 @@ class PotList:
         for pot in self.pots:
             pot.clear_actions()
 
-    def add_action(self, player, n, i=0):
+    def add_action(self, player, n, i=-1):
         self.pots[i].add_action(player, n)
 
-    def side_pot(self, player, initial):
+    # min meaning how much the player could bet (player chips) and max meaning the amount needed to call
+    def side_pot(self, player, min_x, max_x):
         new_pot = Pot()
         og_pot = self.pots[-1]
-        new_pot.add_action(player, initial)
-        for (p, n) in og_pot.get_actions():
-            if n > initial:
-                new_pot.add_action(p, initial)
-                temp = initial - n
-                og_pot.add_chips(temp)
-        self.pots.append(Pot())
+        og_pot.add_action(player, min_x)
+        if min_x < max_x:
+            for (p, n) in og_pot.get_actions():
+                if n > min_x:
+                    new_pot.add_action(p, n - min_x)
+                    og_pot.add_chips(min_x - n)
+        self.pots.append(new_pot)
+        return og_pot, new_pot
 
-    def get_chips(self, i=0):
+    def get_chips(self, i=-1):
         return self.pots[i].get_chips()
 
     def get_length(self):

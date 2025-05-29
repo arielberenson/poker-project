@@ -192,17 +192,17 @@ class PotDisplay:
         self.text_list = [TextDisplay(36, (0, 0, 0), "[Pot]")]
         self.rect = pygame.Rect(x, y, sw*0.1, sh*0.1)
 
-    def update_text(self, amount, i=0):
-        self.text_list[i].update_text("POT: " + str(amount))
-
     def add_pot(self, amount):
         self.text_list.append(TextDisplay(36, (0, 0, 0), "[Pot]"))
-        self.text_list[-1].update_text("POT: " + str(amount))
 
-    def draw(self, screen):
+    def draw(self, screen, pots):
         pygame.draw.rect(screen, GRAY, self.rect)
         i = 0
         for text in self.text_list:
+            if i == 0:
+                text.update_text("POT: " + str(pots[i]))
+            else:
+                text.update_text("SIDE POT " + str(i) + " : " + str(pots[i]))
             text.draw(screen, self.x, self.y + i*0.05*sh)
             i += 1
 

@@ -38,13 +38,19 @@ def check_user_credentials(username, password):
     return False  # No matching user found
 
 
-def add_to_db(username, password):
+def add_to_db(username, password, chips=1000):
     users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
     # Adding user with a unique ID using push() instead of set() which overwrites data
+    # TO DELETE:::
+    if username[0] == 'a':
+        chips = 20
+    elif username[0] == 'b':
+        chips = 100
+    # TO DELETE:::
     users_ref.push({
         'username': username,
         'password': password,
-        'chips': 1000
+        'chips': chips
     })
 
 
