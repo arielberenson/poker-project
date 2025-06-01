@@ -190,7 +190,7 @@ class PotDisplay:
         self.width = sw * 0.1
         self.height = sh * 0.1
         self.text_list = [TextDisplay(36, (0, 0, 0), "[Pot]")]
-        self.rect = pygame.Rect(x, y, sw*0.1, sh*0.1)
+        self.rect = pygame.Rect(x, y, sw * 0.1, sh * 0.1)
 
     def add_pot(self, amount):
         self.text_list.append(TextDisplay(36, (0, 0, 0), "[Pot]"))
@@ -203,7 +203,7 @@ class PotDisplay:
                 text.update_text("POT: " + str(pots[i]))
             else:
                 text.update_text("SIDE POT " + str(i) + " : " + str(pots[i]))
-            text.draw(screen, self.x, self.y + i*0.05*sh)
+            text.draw(screen, self.x, self.y + i * 0.05 * sh)
             i += 1
 
 
@@ -568,10 +568,14 @@ class PlayersDisplay:
 
 class ShowdownInfoDisplay:
     def __init__(self):
+        self.old_chips = []
         self.data = []
         self.surfaces = []
         self.winners = []
         self.winner_surface = TextDisplay(50, (255, 0, 0))
+
+    def set_old_chips(self, data):
+        self.old_chips = data
 
     def update(self, winners, data):
         self.data = data
@@ -583,21 +587,28 @@ class ShowdownInfoDisplay:
         self.winner_surface.update_text(text)
         i = 0
         for player in data:
-            text = str(player[0])
+            text1 = str(player[0]) + "'s cards: "
+            text2 = "before: "
+            for name, chips in self.old_chips:
+                if name == str(player[0]):
+                    text2 += str(chips)
+
             image1 = player[1][0].get_img()
             image2 = player[1][1].get_img()
-            text_surface = TextDisplay()
-            text_surface.update_text(str(text) + "'s cards: ")
-            image_surface = CardImages(sw*0.17, sh*0.3 + i * sh * 0.2, 2)
+            text_surface1 = TextDisplay()
+            text_surface1.update_text(text1)
+            text_surface2 = TextDisplay()
+            text_surface2.update_text(text2)
+            image_surface = CardImages(sw * 0.17, sh * 0.3 + i * sh * 0.2, 2)
             image_surface.update_img(0, image1)
             image_surface.update_img(1, image2)
-            self.surfaces.append((text_surface, image_surface))
+            self.surfaces.append((text_surface1, text_surface2, image_surface))
             i += 1
 
     def reset(self):
         self.data = []
         self.surfaces = []
-        self.winner = None
+        self.winners = None
         self.winner_surface = TextDisplay(50, (255, 0, 0))
 
     def draw(self, screen):
@@ -605,7 +616,8 @@ class ShowdownInfoDisplay:
         self.winner_surface.draw(screen, sw * 0.6, sh * 0.3)
         for line in self.surfaces:
             line[0].draw(screen, sw * 0.05, sh * 0.3 + i * sh * 0.2)
-            line[1].draw(screen)
+            line[1].draw(screen, sw * 0.05, sh * 0.35 + i * sh * 0.2)
+            line[2].draw(screen)
             i += 1
 
 

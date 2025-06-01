@@ -48,6 +48,7 @@ class Game:
         self.big = self.players[0]
         self.current = self.big
         self.pots.clear_all()
+        self.pots.get_pots()[0].set_players(self.players)
         self.deck.new_deck()
         self.deck.shuffle()
         self.community_cards.clear()
@@ -218,18 +219,9 @@ class Game:
                     if data1 == 'call':
                         print("players last bet: ", self.last_bet)
                         self.place_bet(self.last_bet)
-                        message = create_message('player chips', self.current.get_name(),
-                                                 self.current.get_chips())
-                        send_to_all(self.players, message)
-                        message = create_message('pot', self.pots.get_chips(), '')
-                        send_to_all(self.players, message)
                     elif data1 == 'raise':
                         self.place_bet(data2)
-                        message = create_message('player chips', self.current.get_name(),
-                                                 self.current.get_chips())
-                        send_to_all(self.players, message)
-                        message = create_message('pot', self.pots.get_chips(), '')
-                        send_to_all(self.players, message)
+
                         self.player_raised()
                     elif data1 == 'fold':
                         self.current.set_active(False)
@@ -253,20 +245,65 @@ class Game:
             self.players.append(self.players.pop(0))  # Move the first player to the end of the list
             self.current = self.players[0]
             first = False
-        self.turn_counter += 1
+            self.turn_counter += 1
 
     def place_bet(self, n):
-        if n >= self.current.get_chips():
+        if n < self.current.get_chips():
+            self.pots.add_action(self.current, n)
+            self.current.remove_chips(n)
+        else:
+            self.current.set_allin(True)
+            new_pot = self.pots.late_allin(self.current, self.current.get_chips(), n)
+            print("5")
+            if new_pot:
+                message = create_message('new_pot', new_pot.get_chips(), '')
+                send_to_all(self.players, message)
+            self.current.remove_chips(self.current.get_chips())
+        arr = []
+        for pot in self.pots.get_pots():
+            arr.append(pot.get_chips())
+        message = create_message('pots', arr, '')
+        send_to_all(self.players, message)
+        message = create_message('player chips', self.current.get_name(),
+                                 self.current.get_chips())
+        send_to_all(self.players, message)
+
+        if self.last_bet < n:
+            self.last_bet = n
+
+    def place_bet1(self, n):
+        if n > self.current.get_chips():
             old, new = self.pots.side_pot(self.current, self.current.get_chips(), n)
             self.current.remove_chips(self.current.get_chips())
             message = create_message('new_pot', old.get_chips(), new.get_chips())
             send_to_all(self.players, message)
             self.current.set_allin(True)
+        elif n == self.current.get_chips():
+            self.current.remove_chips(n)
+            self.pots.add_action(self.current, n, -1, "allin")
+        allin = self.pots.get_allin_type()
+        if allin == 1:
+            self.current.remove_chips(n)
+            old, new = self.pots.make_new_pot(self.current, n)
+            message = create_message('new_pot', old, new)
+            send_to_all(self.players, message)
+        elif allin == 2:
+            self.current.remove_chips(n)
+            self.pots.add_multiple_pot_action(self.current , n)
         else:
             self.current.remove_chips(n)
             self.pots.add_action(self.current, n)
+            if answer:
+                old, new = answer
+                message = create_message('new_pot', old, new)
+                send_to_all(self.players, message)
         if self.last_bet < n:
             self.last_bet = n
+        message = create_message('player chips', self.current.get_name(),
+                                 self.current.get_chips())
+        send_to_all(self.players, message)
+        message = create_message('pot', self.pots.get_chips(), '')
+        send_to_all(self.players, message)
 
     def add_players(self, p):
         self.players.append(p)

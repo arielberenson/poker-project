@@ -78,7 +78,7 @@ class Client:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('10.116.4.173', 8820))
+        self.my_socket.connect(('192.168.1.142', 8820))
 
     def run_pygame(self, message_queue):
         self.game_host = False
@@ -190,8 +190,8 @@ class Client:
                         self.check_call_button.update_text(f"Call [{self.chips}]")
                     else:
                         self.check_call_button.update_text(f"Call [{self.highest_round_bet - self.player_round_bet}]")
-                    print("Highest: ", self.highest_round_bet)
-                    print("Self: ", self.player_round_bet)
+                    # print("Highest: ", self.highest_round_bet)
+                    # print("Self: ", self.player_round_bet)
                 else:
                     self.check_call_button.update_text("Check")
                 # Handle events and update game screen
@@ -251,7 +251,7 @@ class Client:
                         self.check_call_button.draw(self.screen)
                         self.raise_button.draw(self.screen)
                         self.fold_button.draw(self.screen)
-                        self.slider.set_max_value(min(self.pots[0] * 2 - self.player_round_bet, self.chips))
+                        self.slider.set_max_value(min(self.pots[0] * 2 - self.player_round_bet, self.chips - self.highest_round_bet))
                         if self.highest_round_bet == 0:
                             self.slider.set_min_value(5)
                         else:
@@ -313,14 +313,12 @@ class Client:
                         l = [Card(card_data['suit'], card_data['val']) for card_data in data2]
                         self.community_cards.update_img(4, l[0].get_img())
 
-                elif message_type == 'pot':
-                    if data1:
-                        self.pots[-1] = data1
+                elif message_type == 'pots':
+                    self.pots = data1
 
                 elif message_type == 'new_pot':
-                    self.pots[-1] = data1
-                    self.pots.append(data2)
-                    self.pots_display.add_pot(data2)
+                    self.pots.append(data1)
+                    self.pots_display.add_pot(data1)
 
                 elif message_type == 'player chips':
                     if data1 == self.name:
@@ -363,6 +361,7 @@ class Client:
                 elif message_type == 'players':
                     if data1:
                         players_data = data1
+                        self.showdown_info.set_old_chips(players_data)
                         self_index = next(index for index, player in enumerate(players_data) if player[0] == self.name)
                         print(self_index)
                         self.players_data = players_data[self_index:]

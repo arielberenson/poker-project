@@ -33,6 +33,12 @@ def check_user_credentials(username, password):
 
     for user_data in matching_users.values():
         if user_data.get('password') == password:
+            # TO DELETE :::::::
+            if user_data.get('username')[0] == 'a':
+                update_chips(username, 20)
+            elif user_data.get('username')[0] == 'b':
+                update_chips(username, 100)
+            # TO DELETE ::::::
             return True  # Found a matching username and password
 
     return False  # No matching user found
