@@ -21,6 +21,8 @@ class Pot:
         return self.chips
 
     def add_action(self, player, n, info=""):
+        if player not in self.players:
+            self.players.append(player)
         self.actions.append([player, n, info])
         self.add_chips(n)
         if info == "allin":
@@ -34,7 +36,7 @@ class Pot:
         self.actions = []
 
     def set_allin(self, param):
-        self.allin = param
+        self.allin = []
 
     def get_allin_action(self):
         for action in self.actions:
@@ -48,14 +50,12 @@ class Pot:
         for player in self.players:
             if player == allin_player:
                 continue
-            print("2")
             if player.get_round_bet() > amount:
                 allin.append([player, amount])
                 new_pot.add_chips(player.get_round_bet() - amount)
             if player.get_round_bet() == amount:
                 allin.append([player, amount])
             else:
-                print("3")
                 allin.append([player, player.get_round_bet()])
         self.allin = allin
         return new_pot
@@ -83,19 +83,31 @@ class PotList:
             pot.clear_actions()
 
     def add_action(self, player, n, i=-1, info=""):
-        for pot in self.pots:
-            data = pot.get_allin()
-            if data:
-                ceiling = data[0][1]
-                for item in data:
-                    if item[0] == player:
-                        if item[1] >= ceiling:
-                            self.pots[i].add_action(player, n, info)
+        pot = self.pots[0]
+        data = pot.get_allin()
+        if data:
+            print(data)
+            ceiling = data[0][1]
+            for item in data:
+                if item[0] == player:
+                    if item[1] + n > ceiling:
+                        pot.add_action(player, ceiling - item[1])
+                        if len(self.pots) == 1:
+                            new_pot = Pot()
+                            new_pot.add_action(player, n - (ceiling - item[1]), info)
+                            self.pots.append(new_pot)
+                            item[1] = ceiling
+                            return new_pot
                         else:
-                            pot.add_action(player, ceiling - item[1])
-                            self.pots[i].add_action(player, n - (ceiling - item[1]), info)
-                return
-        self.pots[i].add_action(player, n, info)
+                            self.pots[1].add_action(player, n - (ceiling - item[1]), info)
+                            item[1] = ceiling
+                            return False
+                    pot.add_action(player, n, info)
+                    item[1] += n
+                    return False
+        else:
+            pot.add_action(player, n, info)
+            return False
 
 
     # min meaning how much the player could bet (player chips) and max meaning the amount needed to call
@@ -113,11 +125,9 @@ class PotList:
         return og_pot, new_pot
 
     def late_allin(self, player, min_x, max_x):
-        print("1")
         og_pot = self.pots[-1]
         og_pot.add_action(player, min_x)
         new_pot = og_pot.create_allin_instance(min_x, player)
-        print("4")
         if new_pot.get_chips() > 0:
             self.pots.append(new_pot)
             return new_pot

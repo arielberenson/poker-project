@@ -249,19 +249,19 @@ class Game:
 
     def place_bet(self, n):
         if n < self.current.get_chips():
-            self.pots.add_action(self.current, n)
+            new_pot = self.pots.add_action(self.current, n)
             self.current.remove_chips(n)
         else:
             self.current.set_allin(True)
             new_pot = self.pots.late_allin(self.current, self.current.get_chips(), n)
-            print("5")
-            if new_pot:
-                message = create_message('new_pot', new_pot.get_chips(), '')
-                send_to_all(self.players, message)
             self.current.remove_chips(self.current.get_chips())
+        if new_pot:
+            message = create_message('new_pot', new_pot.get_chips(), '')
+            send_to_all(self.players, message)
         arr = []
         for pot in self.pots.get_pots():
             arr.append(pot.get_chips())
+
         message = create_message('pots', arr, '')
         send_to_all(self.players, message)
         message = create_message('player chips', self.current.get_name(),
