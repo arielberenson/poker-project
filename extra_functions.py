@@ -1,12 +1,21 @@
 import json
+from encryptor_utils import Encryptor, FERNET_KEY
+
+encryptor = Encryptor(FERNET_KEY)
 
 
 def create_message(message_type, data1, data2):
-    return json.dumps({
+    message = json.dumps({
         "type": message_type,
         "data1": data1,
         "data2": data2,
     })
+    encrypted_message = encryptor.encrypt(message)
+    return encrypted_message
+
+
+def decrypt(message):
+    return encryptor.decrypt(message)
 
 
 def extract_json(data):

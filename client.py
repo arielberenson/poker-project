@@ -1,7 +1,8 @@
 import threading
 import socket
 from classes.game_classes.deck import Card
-from classes.pygame_classes import *
+from classes.pygame_structure import *
+from database.firebase_client import get_server_ip_from_firebase
 from extra_functions import *
 import select
 import queue
@@ -78,7 +79,9 @@ class Client:
     def setup_socket(self):
         # Set up socket connection
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_socket.connect(('192.168.1.142', 8820))
+        server_ip = get_server_ip_from_firebase()
+        server_port = 8820
+        self.my_socket.connect((server_ip, server_port))
 
     def run_pygame(self, message_queue):
         self.game_host = False
@@ -201,9 +204,11 @@ class Client:
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.check_call_button.check_click(event.pos):
                             if self.pressure:
-                                message = create_message('player_move', 'call', '')
+                                value = self.highest_round_bet - self.player_round_bet
+                                message = create_message('player_move', 'call', value)
                                 self.my_socket.sendall(message.encode('utf-8'))
                                 buttons_hide = True
+                                self.player_round_bet = self.highest_round_bet
                             else:
                                 print("check clicked!")
                                 message = create_message('player_move', 'check', '')
@@ -314,20 +319,17 @@ class Client:
                         self.community_cards.update_img(4, l[0].get_img())
 
                 elif message_type == 'pots':
+                    new_pot = data1
+                    if len(new_pot) > len(self.pots):
+                        self.pots_display.add_pot(new_pot[-1])
                     self.pots = data1
 
-                elif message_type == 'new_pot':
-                    self.pots.append(data1)
-                    self.pots_display.add_pot(data1)
-
-                elif message_type == 'player chips':
+                elif message_type == 'player_chips':
                     if data1 == self.name:
                         self.chips = data2
                         self.me_display.update_chips(self.chips)
                     else:
-                        # index = self.players_data.index(data1) - 1
-                        index = next(index for index, player in enumerate(self.players_data) if player[0] == data1) - 1
-                        self.players_display.get_player(index).update_chips(data2)
+                        self.players_display.get_player(data1).update_chips(data2)
 
                 elif message_type == 'player_left':
                     if page == 'lobby':

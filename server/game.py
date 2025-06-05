@@ -10,7 +10,7 @@ from classes.users_classes.player import *
 
 from extra_functions import *
 from compute_winner import compute_winner
-from database.firebase import update_chips
+from database.firebase_server import update_chips
 
 
 class Game:
@@ -217,11 +217,9 @@ class Game:
 
                 elif message_type == 'player_move':
                     if data1 == 'call':
-                        print("players last bet: ", self.last_bet)
-                        self.place_bet(self.last_bet)
+                        self.place_bet(data2)
                     elif data1 == 'raise':
                         self.place_bet(data2)
-
                         self.player_raised()
                     elif data1 == 'fold':
                         self.current.set_active(False)
@@ -253,18 +251,15 @@ class Game:
             self.current.remove_chips(n)
         else:
             self.current.set_allin(True)
-            new_pot = self.pots.late_allin(self.current, self.current.get_chips(), n)
+            new_pot = self.pots.create_allin(self.current, self.current.get_chips(), n)
             self.current.remove_chips(self.current.get_chips())
-        if new_pot:
-            message = create_message('new_pot', new_pot.get_chips(), '')
-            send_to_all(self.players, message)
         arr = []
         for pot in self.pots.get_pots():
             arr.append(pot.get_chips())
 
         message = create_message('pots', arr, '')
         send_to_all(self.players, message)
-        message = create_message('player chips', self.current.get_name(),
+        message = create_message('player_chips', self.current.get_name(),
                                  self.current.get_chips())
         send_to_all(self.players, message)
 
@@ -299,7 +294,7 @@ class Game:
                 send_to_all(self.players, message)
         if self.last_bet < n:
             self.last_bet = n
-        message = create_message('player chips', self.current.get_name(),
+        message = create_message('player_chips', self.current.get_name(),
                                  self.current.get_chips())
         send_to_all(self.players, message)
         message = create_message('pot', self.pots.get_chips(), '')

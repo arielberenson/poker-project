@@ -1,5 +1,3 @@
-import copy
-
 
 def flush(cards):
     return_value = []

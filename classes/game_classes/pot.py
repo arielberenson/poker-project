@@ -109,7 +109,6 @@ class PotList:
             pot.add_action(player, n, info)
             return False
 
-
     # min meaning how much the player could bet (player chips) and max meaning the amount needed to call
     def side_pot(self, player, min_x, max_x):
         new_pot = Pot()
@@ -124,7 +123,7 @@ class PotList:
         og_pot.set_allin(True)
         return og_pot, new_pot
 
-    def late_allin(self, player, min_x, max_x):
+    def create_allin(self, player, min_x, max_x):
         og_pot = self.pots[-1]
         og_pot.add_action(player, min_x)
         new_pot = og_pot.create_allin_instance(min_x, player)
@@ -132,7 +131,6 @@ class PotList:
             self.pots.append(new_pot)
             return new_pot
         return False
-
 
     def get_chips(self, i=-1):
         return self.pots[i].get_chips()
@@ -162,5 +160,3 @@ class PotList:
         action = self.pots[-2].get_allin_action()
         if not action:
             return
-
-

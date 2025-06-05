@@ -1,4 +1,4 @@
-from database.firebase import add_to_db, check_username, check_user_credentials, fetch_data
+from database.firebase_server import add_to_db, check_username, check_user_credentials, fetch_data
 from server.game import *
 
 
