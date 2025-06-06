@@ -58,10 +58,11 @@ class Server:
             for user in self.users:
                 readable, _, _ = select.select([user.get_socket()], [], [], 0.1)
                 if readable:
-                    message = user.get_socket().recv(1024).decode('utf-8')
-                    if message:
-                        print(message)
-                        message_data = json.loads(message)
+                    message = user.get_socket().recv(1024)
+                    decrypted_message = decrypt(message)
+                    if decrypted_message:
+                        print(decrypted_message)
+                        message_data = json.loads(decrypted_message)
                         message_type = message_data.get("type")
                         print("JSON message: ", message_data)
                         data1 = message_data.get("data1")
@@ -73,7 +74,7 @@ class Server:
                                     break
                             if len(current_game.get_players()) > 2:
                                 message = create_message('reject', 'join', '')
-                                user.get_socket().sendall(message.encode('utf-8'))
+                                user.get_socket().sendall(message)
                             else:
                                 p = Player(user, user.get_username(), user.get_chips())
                                 if current_game.is_game_started():
@@ -86,11 +87,11 @@ class Server:
                                 for p in current_game.get_players():
                                     names.append(p.get_username())
                                 message = create_message('approve', 'join', names)
-                                user.get_socket().sendall(message.encode('utf-8'))
+                                user.get_socket().sendall(message)
                         elif message_type == 'create':
                             game_id = self.create_game(user)
                             message = create_message('approve', 'create', '')
-                            user.get_socket().sendall(message.encode('utf-8'))
+                            user.get_socket().sendall(message)
                             message = create_message('new_game', user.get_username(), game_id)
                             send_to_all(self.users, message)
                         elif message_type == 'sign_up':
@@ -99,21 +100,21 @@ class Server:
                                 user.add_user_credentials(data1, fetch_data(data1, 'chips'))
                                 for game_id, game_data in self.games.items():
                                     message = create_message('new_game', game_data[3], game_id)
-                                    user.get_socket().sendall(message.encode('utf-8'))
+                                    user.get_socket().sendall(message)
                                 message = create_message('approve', 'user', (data1, user.get_chips()))
                             else:
                                 message = create_message('reject', 'sign_up', '')
-                            user.get_socket().sendall(message.encode('utf-8'))
+                            user.get_socket().sendall(message)
                         elif message_type == 'log_in':
                             if check_user_credentials(data1, data2) and self.check_username(data1):
                                 user.add_user_credentials(data1, fetch_data(data1, 'chips'))
                                 for game_id, game_data in self.games.items():
                                     message = create_message('new_game', game_data[3], game_id)
-                                    user.get_socket().sendall(message.encode('utf-8'))
+                                    user.get_socket().sendall(message)
                                 message = create_message('approve', 'log_in', (data1, user.get_chips()))
                             else:
                                 message = create_message('reject', 'log_in', data1)
-                            user.get_socket().sendall(message.encode('utf-8'))
+                            user.get_socket().sendall(message)
                         else:
                             print(self.games)
                             for game in self.games.values():

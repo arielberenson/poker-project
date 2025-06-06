@@ -39,6 +39,6 @@ def send_to_all(recipients, m):
     for recipient in recipients:
         try:
             us = recipient.get_user()
-            us.get_socket().sendall(m.encode('utf-8'))
+            us.get_socket().sendall(m)
         except Exception as e:
-            recipient.get_socket().sendall(m.encode('utf-8'))
+            recipient.get_socket().sendall(m)

@@ -113,7 +113,7 @@ class Client:
                                 username = self.username_input.get_text()
                                 password = self.password_input.get_text()
                                 message = create_message('sign_up', username, password)
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                                 self.password_input.set_text('')
                                 self.username_input.set_text('')
                         if self.restart_button.check_click(event.pos):
@@ -136,7 +136,7 @@ class Client:
                                 username = self.username_input.get_text()
                                 password = self.password_input.get_text()
                                 message = create_message('log_in', username, password)
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                                 self.password_input.set_text('')
                                 self.username_input.set_text('')
                         if self.restart_button.check_click(event.pos):
@@ -158,11 +158,11 @@ class Client:
                         if self.create_button.check_click(event.pos):
                             message = create_message('create', '', '')
                             print(message)
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                         for game in self.join_button_list.get_games():
                             if game[0].check_click(event.pos):
                                 message = create_message('join', game[1], '')
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                 self.join_button_list.draw(self.screen)
                 self.create_button.draw(self.screen)
                 self.chips_display.draw(self.screen, sw * 0.1, sh * 0.1)
@@ -177,10 +177,10 @@ class Client:
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.start_button.check_click(event.pos):
                             message = create_message('start_game', '', '')
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                         if self.leave_game_button.check_click(event.pos):
                             message = create_message('leave_game', self.name, self.game_host)
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                             page = 'main'
                 self.leave_game_button.draw(self.screen)
                 self.players_lobby_display.draw(self.screen)
@@ -206,13 +206,13 @@ class Client:
                             if self.pressure:
                                 value = self.highest_round_bet - self.player_round_bet
                                 message = create_message('player_move', 'call', value)
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                                 buttons_hide = True
                                 self.player_round_bet = self.highest_round_bet
                             else:
                                 print("check clicked!")
                                 message = create_message('player_move', 'check', '')
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                                 buttons_hide = True
                             raise_buttons_hide = True
                         elif self.raise_button.check_click(event.pos):
@@ -222,21 +222,21 @@ class Client:
                             if self.slider.get_value():
                                 value = int(self.slider.get_value() + self.highest_round_bet)
                                 message = create_message('player_move', 'raise', value)
-                                self.my_socket.sendall(message.encode('utf-8'))
+                                self.my_socket.sendall(message)
                                 self.player_round_bet += value
                                 buttons_hide = True
                                 raise_buttons_hide = True
                         elif self.fold_button.check_click(event.pos):
                             message = create_message('player_move', 'fold', '')
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                             buttons_hide = True
                             raise_buttons_hide = True
                         elif self.play_again_button.check_click(event.pos):
                             message = create_message('play_again', '', '')
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                         if self.leave_game_button.check_click(event.pos):
                             message = create_message('leave_game', self.name, '')
-                            self.my_socket.sendall(message.encode('utf-8'))
+                            self.my_socket.sendall(message)
                             page = 'main'
                     self.slider.update(event)
                 mouse_pos = pygame.mouse.get_pos()
@@ -439,9 +439,10 @@ class Client:
             # Use select.select() to check if there is data available on the socket
             readable, _, _ = select.select([self.my_socket], [], [], 0.1)
             if readable:
-                message = self.my_socket.recv(1024).decode('utf-8')
-                if message:
-                    message_queue.put(message)
+                message = self.my_socket.recv(1024)
+                decrypted_message = decrypt(message)
+                if decrypted_message:
+                    message_queue.put(decrypted_message)
 
     def new_game(self):
         self.cards = None
