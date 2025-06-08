@@ -62,18 +62,6 @@ def check_user_credentials(username, password):
 
         if stored_hash and stored_salt:
             if verify_password(password, stored_hash, stored_salt):
-
-                # TO DELETE :::::::
-                if user_data.get('username')[0] == 'a':
-                    update_chips(username, 20)
-                elif user_data.get('username')[0] == 'b':
-                    update_chips(username, 100)
-                elif user_data.get('username')[:2] == 'Ap':
-                    update_chips(username, 1000)
-                elif user_data.get('username')[:2] == 'Po':
-                    update_chips(username, 1000)
-                # TO DELETE ::::::
-
                 return True
 
     return False  # No matching user found
@@ -83,12 +71,6 @@ def add_to_db(username, password, chips=1000):
     users_ref = initialize_firebase()  # Ensure Firebase is initialized and get reference
     # Adding user with a unique ID using push() instead of set() which overwrites data
     hashed_pw, salt = hash_password_with_salt(password)
-    # TO DELETE:::
-    if username[0] == 'a':
-        chips = 20
-    elif username[0] == 'b':
-        chips = 100
-    # TO DELETE:::
     users_ref.push({
         'username': username,
         'password_hash': hashed_pw,
